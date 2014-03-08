@@ -553,6 +553,20 @@ bool WFGeometryVectorsOnSameSideOfLine( CGPoint lineVector, CGPoint v1, CGPoint 
 	return (za > 0.0 && zb > 0.0) || (za < 0.0 && zb < 0.0);
 }
 
+bool WFGeometryVectorsCoincident( CGPoint lineVector, CGPoint v1, CGPoint v2 )
+{
+	WFGeometryNormalizeVector( &v1 );
+	CGFloat z = WFGeometryDeterminant2x2( v1.x, v1.y, lineVector.x, lineVector.y );
+	if ( fabs(z) < 1.0E-16 ) return true;
+	
+	WFGeometryNormalizeVector( &v2 );
+	z = WFGeometryDeterminant2x2( v2.x, v2.y, lineVector.x, lineVector.y );
+	if ( fabs(z) < 1.0E-16 ) return true;
+	
+	return false;
+}
+
+
 bool WFGeometryVectorsCrossCorner( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v4 )
 {
 	WFGeometryNormalizeVector( &v1 );

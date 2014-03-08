@@ -230,6 +230,15 @@ void WFGeometryReverseCubicCurve( CGPoint * curve );
  */
 bool WFGeometryVectorsOnSameSideOfLine( CGPoint lineVector, CGPoint v1, CGPoint v2 );
 
+
+/** Determines if either of two test vectors overlaps a line vector.
+ @param lineVector The vector of the line
+ @param v1 First vector to test
+ @param v2 Second vector to test
+ @return True if either or both test vectors overlaps the line vector. False otherwise.
+ */
+bool WFGeometryVectorsCoincident( CGPoint lineVector, CGPoint v1, CGPoint v2 );
+
 /** Determines if a polygon corner is crossed by a corner formed by another polygon
  @param v1
  @param v2

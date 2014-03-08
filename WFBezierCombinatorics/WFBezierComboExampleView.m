@@ -15,11 +15,26 @@
 - (NSBezierPath *)pathA
 {
 	if ( !_pathA) {
+		//_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(50.0, 50.0, 300.0, 300.0)];
+		
 		_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(50.0, 50.0, 300.0, 300.0)];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(70.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(220.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(70.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
+		
+		/*
+		_pathA = [NSBezierPath bezierPath];
+		[_pathA moveToPoint:NSMakePoint(492.697595,623.629134)];
+		[_pathA curveToPoint:NSMakePoint(476.697595,607.629134) controlPoint1:NSMakePoint(483.861115,623.629134) controlPoint2:NSMakePoint(476.697595,616.465614)];
+		[_pathA lineToPoint:NSMakePoint(476.697595,441.203937)];
+		[_pathA curveToPoint:NSMakePoint(492.697595,425.203937) controlPoint1:NSMakePoint(476.697595,432.367457) controlPoint2:NSMakePoint(483.861115,425.203937)];
+		[_pathA lineToPoint:NSMakePoint(879.285082,425.203937)];
+		[_pathA curveToPoint:NSMakePoint(895.285082,441.203937) controlPoint1:NSMakePoint(888.121562,425.203937) controlPoint2:NSMakePoint(895.285082,432.367457)];
+		[_pathA lineToPoint:NSMakePoint(895.285082,607.629134)];
+		[_pathA curveToPoint:NSMakePoint(879.285082,623.629134) controlPoint1:NSMakePoint(895.285082,616.465614) controlPoint2:NSMakePoint(888.121562,623.629134)];
+		[_pathA closePath];
+		*/
 		
 		[_pathA setLineWidth:2.0];
 	}
@@ -29,13 +44,24 @@
 - (NSBezierPath *)pathB
 {
 	if ( !_pathB) {
+		//_pathB = [NSBezierPath bezierPathWithRect:NSMakeRect(360.0, 50.0, 300.0, 300.0)];
+		
 		_pathB = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(280.0, 280.0, 300.0, 300.0)];
 		[_pathB appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(300.0, 300.0, 260.0, 260.0)] bezierPathByReversingPath]];
 		[_pathB appendBezierPath:[NSBezierPath bezierPathWithRect:NSMakeRect(420.0, 320.0, 20.0, 220.0)]];
+		
+		/*
+		NSAffineTransform* tfm = [NSAffineTransform transform];
+		[tfm translateXBy:100 yBy:0];
+		_pathB = [tfm transformBezierPath:[self pathA]];
+		*/
+		
 		[_pathB setLineWidth:2.0];
 	}
 	return _pathB;
 }
+
+
 
 - (IBAction)opChanged:(id)sender
 {
@@ -86,6 +112,17 @@
 - (void)mouseDown:(NSEvent *)theEvent
 {
 	NSPoint mousePoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+ 
+	/*
+	// "snap" mousepoint handling so that exact alignment of paths is easy to produce
+	// Use these to hunt for find edge cases (pun intended!) by dragging shapes around
+	CGFloat rx, ry;
+	rx = fmod( mousePoint.x, 10.0 );
+	ry = fmod( mousePoint.y, 10.0 );
+	mousePoint.x -= rx;
+	mousePoint.y -= ry;
+	*/
+	
 	[self setTrackingPoint:mousePoint];
 	
 	if ( [[self pathA] containsPoint:mousePoint] ) {
@@ -100,6 +137,16 @@
 	if ( ![self trackingPath] ) return;
 	NSPoint mousePoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 	
+	/*
+	// "snap" mousepoint handling so that exact alignment of paths is easy to produce
+	// Use these to hunt for find edge cases (pun intended!) by dragging shapes around
+	CGFloat rx, ry;
+	rx = fmod( mousePoint.x, 10.0 );
+	ry = fmod( mousePoint.y, 10.0 );
+	mousePoint.x -= rx;
+	mousePoint.y -= ry;
+	*/
+	
 	NSAffineTransform * t = [[NSAffineTransform alloc] init];
 	[t translateXBy:mousePoint.x - [self trackingPoint].x
 				yBy:mousePoint.y - [self trackingPoint].y];
@@ -108,5 +155,7 @@
 	
 	[self setTrackingPoint:mousePoint];
 }
+
+
 
 @end

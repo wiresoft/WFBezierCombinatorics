@@ -14,12 +14,18 @@
 #define WFBezierFlag_SubPathStartB		(1<<3)		// Node is the beginning of a sub-path of path B
 #define WFBezierFlag_SubPathEndA		(1<<4)		// Node is the end of a sub-path of path A
 #define WFBezierFlag_SubPathEndB		(1<<5)		// Node is the end of a sub-path of path B
+#define WFBezierFlag_OriginalEndptA		(1<<6)		// Node is an original endpoint from the input path A
+#define WFBezierFlag_OriginalEndptB		(1<<7)		// Node is an original endpoint from the input path B
 
+#define WFBezierFlag_ParallelIntersect	(1<<10)		// Node is an intersection on a segment where edges from path A and B are parallel
 #define WFBezierFlag_ShouldInvalidate	(1<<11)		// Vertex is considered invalid and should be skipped over when reconstructing the path
 #define WFBezierFlag_Coincident			(1<<12)		// Vertex is an original polygon corner that is coincident with the other polygon
 #define WFBezierFlag_PointInvalid		(1<<13)		// Vertex is considered invalid and should be skipped over when reconstructing the path
 #define WFBezierFlag_PointUsed			(1<<14)		// Vertex has been used in path reconstruction
 
+
+#define WFBezierTraversal_IgnoreParallelIntersections	(1<<0)	// traversal algorithm will ignore special cases for parallel intersections.
+#define WFBezierTraversal_DontSkipParallelIntersections	(1<<1)	// traversal algorithm will not attempt to skip parallel edge intersections to optimise output.
 
 
 typedef struct {
@@ -48,6 +54,7 @@ typedef struct {
 
 #pragma mark - Static C Functions
 
+WFBezierVertexNode * findMoveToNodeOverlappingNode( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, NSUInteger vertexCount, BOOL isPathA );
 WFBezierVertexNode * nodeOnIndexPathAfterNode( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * path, BOOL isPathA );
 WFBezierVertexNode * nextNonRedundantNode( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * path, BOOL isPathA );
 WFBezierVertexNode * previousNonRedundantNode( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * path, BOOL isPathA );
@@ -56,6 +63,26 @@ WFBezierVertexNode * originalVertexOverlappingNode( WFBezierVertexNode * origin,
 WFBezierVertexNode * intersectionOverlappingNodeIfExists( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * path, BOOL isPathA );
 void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBezierIndexChain * indexedPathA_p, WFBezierIndexChain * indexedPathB_p);
 
+
+WFBezierVertexNode * findMoveToNodeOverlappingNode( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, NSUInteger vertexCount, BOOL isPathA )
+{
+	for ( NSUInteger i = 0; i < vertexCount; i++ ) {
+		WFBezierVertexNode * node = &vertices[i];
+		if ( node->flags & WFBezierFlag_ShouldInvalidate ) continue;
+		if ( isPathA ) {
+			if ( node->elementA == NSMoveToBezierPathElement &&
+				WFGeometryDistance(origin->intersectionPoint, node->intersectionPoint) < WFGeometryPointResolution ) {
+				return node;
+			}
+		} else {
+			if ( node->elementB == NSMoveToBezierPathElement &&
+				WFGeometryDistance(origin->intersectionPoint, node->intersectionPoint) < WFGeometryPointResolution ) {
+				return node;
+			}
+		}
+	}
+	return NULL;
+}
 
 WFBezierVertexNode * originalVertexOverlappingNode( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * path, BOOL isPathA )
 {
@@ -270,7 +297,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				currentResult->elementA = currentElement;
 				currentResult->pathA_t = i;
 				currentResult->pathB_t = -1;
-				currentResult->flags = WFBezierFlag_PathA;
+				currentResult->flags = WFBezierFlag_PathA | WFBezierFlag_OriginalEndptA;
 				currentResult->subPathOriginA = subPathStart;
 				currentResult->subPathOriginB = NSNotFound;
 			} else {
@@ -279,7 +306,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				currentResult->elementB = currentElement;
 				currentResult->pathA_t = -1;
 				currentResult->pathB_t = i;
-				currentResult->flags = WFBezierFlag_PathB;
+				currentResult->flags = WFBezierFlag_PathB | WFBezierFlag_OriginalEndptB;
 				currentResult->subPathOriginA = NSNotFound;
 				currentResult->subPathOriginB = subPathStart;
 			}
@@ -513,6 +540,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		CGPoint testVec2B;
 		
 		BOOL crossesBoundary = NO;
+		BOOL coincidentBoundaries = NO;
 		
 		if ( pathAOnEndpt ) {
 			originalA = originalVertexOverlappingNode(node, vertices, indexedPathA, YES);
@@ -568,6 +596,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 							break;
 					}
 					crossesBoundary |= !WFGeometryVectorsOnSameSideOfLine( lineVecA, testVec1A, testVec2A );
+					coincidentBoundaries |= WFGeometryVectorsCoincident( lineVecA, testVec1A, testVec2A );
 				}
 			}
 		}
@@ -625,6 +654,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 							break;
 					}
 					crossesBoundary |= !WFGeometryVectorsOnSameSideOfLine( lineVecB, testVec1B, testVec2B );
+					coincidentBoundaries |= WFGeometryVectorsCoincident( lineVecB, testVec1B, testVec2B );
 				}
 			}
 		}
@@ -634,7 +664,9 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		
 		if ( originalA ) {
 			if ( crossesBoundary ) {
-				node->flags |= originalA->flags & (WFBezierFlag_SubPathStartA|WFBezierFlag_SubPathEndA);
+				if ( coincidentBoundaries ) node->flags |= WFBezierFlag_ParallelIntersect;
+				node->flags |= originalA->flags & (WFBezierFlag_SubPathStartA|WFBezierFlag_SubPathEndA|WFBezierFlag_OriginalEndptA);
+				node->flags |= WFBezierFlag_Coincident;
 				node->subPathEndA = originalA->subPathEndA;
 				node->subPathOriginA = originalA->subPathOriginA;
 				originalA->flags |= WFBezierFlag_ShouldInvalidate;
@@ -648,6 +680,10 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 					nextNodeA->flags |= WFBezierFlag_ShouldInvalidate;
 					nextNodeA = nodeOnIndexPathBeforeNode( nextNodeA, vertices, indexedPathA, YES );
 				}
+				nextNodeA = findMoveToNodeOverlappingNode( node, vertices, vertexCount, YES );
+				if ( nextNodeA ) {
+					nextNodeA->flags |= WFBezierFlag_ShouldInvalidate;
+				}
 			} else {
 				node->flags |= WFBezierFlag_ShouldInvalidate;
 				originalA->flags |= WFBezierFlag_Coincident;
@@ -655,7 +691,9 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		}
 		if ( originalB ) {
 			if ( crossesBoundary ) {
-				node->flags |= originalB->flags & (WFBezierFlag_SubPathStartB|WFBezierFlag_SubPathEndB);
+				if ( coincidentBoundaries ) node->flags |= WFBezierFlag_ParallelIntersect;
+				node->flags |= originalB->flags & (WFBezierFlag_SubPathStartB|WFBezierFlag_SubPathEndB|WFBezierFlag_OriginalEndptB);
+				node->flags |= WFBezierFlag_Coincident;
 				node->subPathEndB = originalB->subPathEndB;
 				node->subPathOriginB = originalB->subPathOriginB;
 				originalB->flags |= WFBezierFlag_ShouldInvalidate;
@@ -668,6 +706,10 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				while ( WFGeometryDistance(node->intersectionPoint, nextNodeB->intersectionPoint) <= WFGeometryPointResolution ) {
 					nextNodeB->flags |= WFBezierFlag_ShouldInvalidate;
 					nextNodeB = nodeOnIndexPathBeforeNode( nextNodeB, vertices, indexedPathB, NO );
+				}
+				nextNodeB = findMoveToNodeOverlappingNode( node, vertices, vertexCount, NO );
+				if ( nextNodeB ) {
+					nextNodeB->flags |= WFBezierFlag_ShouldInvalidate;
 				}
 			} else {
 				node->flags |= WFBezierFlag_ShouldInvalidate;
@@ -694,20 +736,33 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		NSUInteger vertexIndex = (isPathA)?indexedPathA->indexes[pathIndex]:indexedPathB->indexes[pathIndex];
 		WFBezierVertexNode * node = &vertices[vertexIndex];
 		BOOL switchPath = NO;
+		BOOL ignoreVertex = NO;
 		
 		if ( !isBezierPathStarted ) {
 			// Sub-path has not been started, so find a starting node to use
 			node = findNextStartingPoint( vertices, vertexCount, indexedPathA, indexedPathB, &isPathA );
 			if ( !node ) break;
+			//NSLog(@"Starting from (%f,%f) [%lu]", node->intersectionPoint.x, node->intersectionPoint.y, (isPathA)?indexedPathA->indexes[node->pathAIndex]:indexedPathB->indexes[node->pathBIndex] );
 			pathIndex = (isPathA)?node->pathAIndex:node->pathBIndex;
 		}
 		
 		//
 		// Select the next node on the path
 		//
-		if ( (isPathA && (node->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == WFBezierFlag_PathA) ||
-			 (!isPathA && (node->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == WFBezierFlag_PathB) ||
-			 node->flags & WFBezierFlag_PointInvalid ) {
+		
+		// Node is an intersection, so switch to the alternate path unless node is a a parallel intersection in which case additional checks are needed to determine if we should switch paths.
+		if ( !(node->flags & WFBezierFlag_PointInvalid) && (node->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
+			if ( (node->flags & WFBezierFlag_ParallelIntersect) && !(options & WFBezierTraversal_IgnoreParallelIntersections) ) {
+				// If node is a parallel path intersection, we should only switch paths if the next node on either path is NOT an intersection
+				WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode( node, vertices, indexedPathA, YES );
+				WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode( node, vertices, indexedPathB, NO );
+				switchPath = (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) || (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB);
+				ignoreVertex = !switchPath && !(options & WFBezierTraversal_DontSkipParallelIntersections);
+			} else {
+				switchPath = YES;
+			}
+		}
+		if ( !switchPath ) {
 			// Node is only on pathA or only pathB, or is invalid and should be skipped
 			// Go to next node on this index path
 			pathIndex++;
@@ -720,15 +775,12 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 					pathIndex = vertices[node->subPathOriginB].pathBIndex;
 				}
 			}
-		} else {
-			// Node is an intersection, so switch to the alternate path
-			switchPath = YES;
 		}
 		
 		//
 		// Add the current node to the result path if it was valid
 		//
-		if ( !(node->flags & WFBezierFlag_PointInvalid) ) {
+		if ( !(node->flags & WFBezierFlag_PointInvalid) && !ignoreVertex ) {
 			if ( !isBezierPathStarted ) {
 				[result moveToPoint:node->intersectionPoint];
 				isBezierPathStarted = YES;
@@ -909,7 +961,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 - (NSBezierPath *)WFSubtractPath:(NSBezierPath *)path
 {
 	NSBezierPath * result = [self WFTraversePath:[path bezierPathByReversingPath]
-									 withOptions:0
+									 withOptions:WFBezierTraversal_IgnoreParallelIntersections
 									 pointFinder:^WFBezierVertexNode * (WFBezierVertexNode *vertices, NSUInteger vertexCount, WFBezierIndexChain *indexedPathA, WFBezierIndexChain *indexedPathB, BOOL * isPathA) {
 		
 		WFBezierVertexNode * node = NULL;
@@ -927,7 +979,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 					*isPathA = NO;
 				} else {
 					nextNode = nodeOnIndexPathAfterNode(node, vertices, indexedPathB, NO);
-					if ( (nextNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
+					if ( (nextNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB|WFBezierFlag_ParallelIntersect)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
 						// Next node on pathB is also an intersection so the pathB enters and then leaves pathA, this is valid for a subtraction.
 						*isPathA = NO;
 					} else if ( ![self WFContainsNode:nextNode] ) {
@@ -968,7 +1020,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 - (NSBezierPath * )WFIntersectWithPath:(NSBezierPath *)path
 {
 	NSBezierPath * result = [self WFTraversePath:path
-									 withOptions:0
+									 withOptions:WFBezierTraversal_DontSkipParallelIntersections
 									 pointFinder:^WFBezierVertexNode * (WFBezierVertexNode *vertices, NSUInteger vertexCount, WFBezierIndexChain *indexedPathA, WFBezierIndexChain *indexedPathB, BOOL * isPathA) {
 	 
 		WFBezierVertexNode * node = NULL;

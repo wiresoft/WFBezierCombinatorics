@@ -38,6 +38,7 @@
 /* Begin PBXFileReference section */
 		62AF2EE618C943AB002D8678 /* WFBezierComboExampleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WFBezierComboExampleView.h; sourceTree = "<group>"; };
 		62AF2EE718C943AB002D8678 /* WFBezierComboExampleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WFBezierComboExampleView.m; sourceTree = "<group>"; };
+		62AF2EE918CBADFF002D8678 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		62DE7C3F18C93AC200EF10AC /* WFBezierCombinatorics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WFBezierCombinatorics.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		62DE7C4218C93AC200EF10AC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		62DE7C4518C93AC200EF10AC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -92,6 +93,7 @@
 				62DE7C6618C93AC200EF10AC /* Tests */,
 				62DE7C4118C93AC200EF10AC /* Frameworks */,
 				62DE7C4018C93AC200EF10AC /* Products */,
+				62AF2EE918CBADFF002D8678 /* README.md */,
 			);
 			sourceTree = "<group>";
 		};
