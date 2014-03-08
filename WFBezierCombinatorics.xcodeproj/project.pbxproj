@@ -1,0 +1,514 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		62AF2EE418C9414B002D8678 /* WFGeometry.c in Sources */ = {isa = PBXBuildFile; fileRef = 62DE7C7A18C93C4500EF10AC /* WFGeometry.c */; };
+		62AF2EE518C94151002D8678 /* NSBezierPath+WFBezierCombinatorics.m in Sources */ = {isa = PBXBuildFile; fileRef = 62DE7C7818C93B6900EF10AC /* NSBezierPath+WFBezierCombinatorics.m */; };
+		62AF2EE818C943AB002D8678 /* WFBezierComboExampleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 62AF2EE718C943AB002D8678 /* WFBezierComboExampleView.m */; };
+		62DE7C4318C93AC200EF10AC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62DE7C4218C93AC200EF10AC /* Cocoa.framework */; };
+		62DE7C4D18C93AC200EF10AC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 62DE7C4B18C93AC200EF10AC /* InfoPlist.strings */; };
+		62DE7C4F18C93AC200EF10AC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 62DE7C4E18C93AC200EF10AC /* main.m */; };
+		62DE7C5318C93AC200EF10AC /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 62DE7C5118C93AC200EF10AC /* Credits.rtf */; };
+		62DE7C5618C93AC200EF10AC /* WFAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 62DE7C5518C93AC200EF10AC /* WFAppDelegate.m */; };
+		62DE7C5918C93AC200EF10AC /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 62DE7C5718C93AC200EF10AC /* MainMenu.xib */; };
+		62DE7C5B18C93AC200EF10AC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 62DE7C5A18C93AC200EF10AC /* Images.xcassets */; };
+		62DE7C6218C93AC200EF10AC /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62DE7C6118C93AC200EF10AC /* XCTest.framework */; };
+		62DE7C6318C93AC200EF10AC /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62DE7C4218C93AC200EF10AC /* Cocoa.framework */; };
+		62DE7C6B18C93AC200EF10AC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 62DE7C6918C93AC200EF10AC /* InfoPlist.strings */; };
+		62DE7C6D18C93AC200EF10AC /* WFBezierCombinatoricsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 62DE7C6C18C93AC200EF10AC /* WFBezierCombinatoricsTests.m */; };
+		62DE7C7918C93B6900EF10AC /* NSBezierPath+WFBezierCombinatorics.m in Sources */ = {isa = PBXBuildFile; fileRef = 62DE7C7818C93B6900EF10AC /* NSBezierPath+WFBezierCombinatorics.m */; };
+		62DE7C7C18C93C4500EF10AC /* WFGeometry.c in Sources */ = {isa = PBXBuildFile; fileRef = 62DE7C7A18C93C4500EF10AC /* WFGeometry.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		62DE7C6418C93AC200EF10AC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 62DE7C3718C93AC200EF10AC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 62DE7C3E18C93AC200EF10AC;
+			remoteInfo = WFBezierCombinatorics;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		62AF2EE618C943AB002D8678 /* WFBezierComboExampleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WFBezierComboExampleView.h; sourceTree = "<group>"; };
+		62AF2EE718C943AB002D8678 /* WFBezierComboExampleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WFBezierComboExampleView.m; sourceTree = "<group>"; };
+		62DE7C3F18C93AC200EF10AC /* WFBezierCombinatorics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WFBezierCombinatorics.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		62DE7C4218C93AC200EF10AC /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		62DE7C4518C93AC200EF10AC /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		62DE7C4618C93AC200EF10AC /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		62DE7C4718C93AC200EF10AC /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		62DE7C4A18C93AC200EF10AC /* WFBezierCombinatorics-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "WFBezierCombinatorics-Info.plist"; sourceTree = "<group>"; };
+		62DE7C4C18C93AC200EF10AC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		62DE7C4E18C93AC200EF10AC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		62DE7C5018C93AC200EF10AC /* WFBezierCombinatorics-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "WFBezierCombinatorics-Prefix.pch"; sourceTree = "<group>"; };
+		62DE7C5218C93AC200EF10AC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		62DE7C5418C93AC200EF10AC /* WFAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WFAppDelegate.h; sourceTree = "<group>"; };
+		62DE7C5518C93AC200EF10AC /* WFAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WFAppDelegate.m; sourceTree = "<group>"; };
+		62DE7C5818C93AC200EF10AC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		62DE7C5A18C93AC200EF10AC /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		62DE7C6018C93AC200EF10AC /* WFBezierCombinatoricsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WFBezierCombinatoricsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		62DE7C6118C93AC200EF10AC /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		62DE7C6818C93AC200EF10AC /* WFBezierCombinatoricsTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "WFBezierCombinatoricsTests-Info.plist"; sourceTree = "<group>"; };
+		62DE7C6A18C93AC200EF10AC /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		62DE7C6C18C93AC200EF10AC /* WFBezierCombinatoricsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WFBezierCombinatoricsTests.m; sourceTree = "<group>"; };
+		62DE7C7718C93B6900EF10AC /* NSBezierPath+WFBezierCombinatorics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSBezierPath+WFBezierCombinatorics.h"; sourceTree = "<group>"; };
+		62DE7C7818C93B6900EF10AC /* NSBezierPath+WFBezierCombinatorics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSBezierPath+WFBezierCombinatorics.m"; sourceTree = "<group>"; };
+		62DE7C7A18C93C4500EF10AC /* WFGeometry.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = WFGeometry.c; sourceTree = "<group>"; };
+		62DE7C7B18C93C4500EF10AC /* WFGeometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WFGeometry.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		62DE7C3C18C93AC200EF10AC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62DE7C4318C93AC200EF10AC /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62DE7C5D18C93AC200EF10AC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62DE7C6318C93AC200EF10AC /* Cocoa.framework in Frameworks */,
+				62DE7C6218C93AC200EF10AC /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		62DE7C3618C93AC200EF10AC = {
+			isa = PBXGroup;
+			children = (
+				62DE7C7618C93B0C00EF10AC /* Bezier Path Combinatorics */,
+				62DE7C4818C93AC200EF10AC /* Example App */,
+				62DE7C6618C93AC200EF10AC /* Tests */,
+				62DE7C4118C93AC200EF10AC /* Frameworks */,
+				62DE7C4018C93AC200EF10AC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		62DE7C4018C93AC200EF10AC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				62DE7C3F18C93AC200EF10AC /* WFBezierCombinatorics.app */,
+				62DE7C6018C93AC200EF10AC /* WFBezierCombinatoricsTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		62DE7C4118C93AC200EF10AC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				62DE7C4218C93AC200EF10AC /* Cocoa.framework */,
+				62DE7C6118C93AC200EF10AC /* XCTest.framework */,
+				62DE7C4418C93AC200EF10AC /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		62DE7C4418C93AC200EF10AC /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				62DE7C4518C93AC200EF10AC /* AppKit.framework */,
+				62DE7C4618C93AC200EF10AC /* CoreData.framework */,
+				62DE7C4718C93AC200EF10AC /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		62DE7C4818C93AC200EF10AC /* Example App */ = {
+			isa = PBXGroup;
+			children = (
+				62DE7C5418C93AC200EF10AC /* WFAppDelegate.h */,
+				62DE7C5518C93AC200EF10AC /* WFAppDelegate.m */,
+				62DE7C5718C93AC200EF10AC /* MainMenu.xib */,
+				62DE7C5A18C93AC200EF10AC /* Images.xcassets */,
+				62DE7C4918C93AC200EF10AC /* Supporting Files */,
+				62AF2EE618C943AB002D8678 /* WFBezierComboExampleView.h */,
+				62AF2EE718C943AB002D8678 /* WFBezierComboExampleView.m */,
+			);
+			name = "Example App";
+			path = WFBezierCombinatorics;
+			sourceTree = "<group>";
+		};
+		62DE7C4918C93AC200EF10AC /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				62DE7C4A18C93AC200EF10AC /* WFBezierCombinatorics-Info.plist */,
+				62DE7C4B18C93AC200EF10AC /* InfoPlist.strings */,
+				62DE7C4E18C93AC200EF10AC /* main.m */,
+				62DE7C5018C93AC200EF10AC /* WFBezierCombinatorics-Prefix.pch */,
+				62DE7C5118C93AC200EF10AC /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		62DE7C6618C93AC200EF10AC /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				62DE7C6C18C93AC200EF10AC /* WFBezierCombinatoricsTests.m */,
+				62DE7C6718C93AC200EF10AC /* Supporting Files */,
+			);
+			name = Tests;
+			path = WFBezierCombinatoricsTests;
+			sourceTree = "<group>";
+		};
+		62DE7C6718C93AC200EF10AC /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				62DE7C6818C93AC200EF10AC /* WFBezierCombinatoricsTests-Info.plist */,
+				62DE7C6918C93AC200EF10AC /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		62DE7C7618C93B0C00EF10AC /* Bezier Path Combinatorics */ = {
+			isa = PBXGroup;
+			children = (
+				62DE7C7B18C93C4500EF10AC /* WFGeometry.h */,
+				62DE7C7A18C93C4500EF10AC /* WFGeometry.c */,
+				62DE7C7718C93B6900EF10AC /* NSBezierPath+WFBezierCombinatorics.h */,
+				62DE7C7818C93B6900EF10AC /* NSBezierPath+WFBezierCombinatorics.m */,
+			);
+			name = "Bezier Path Combinatorics";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		62DE7C3E18C93AC200EF10AC /* WFBezierCombinatorics */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62DE7C7018C93AC200EF10AC /* Build configuration list for PBXNativeTarget "WFBezierCombinatorics" */;
+			buildPhases = (
+				62DE7C3B18C93AC200EF10AC /* Sources */,
+				62DE7C3C18C93AC200EF10AC /* Frameworks */,
+				62DE7C3D18C93AC200EF10AC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WFBezierCombinatorics;
+			productName = WFBezierCombinatorics;
+			productReference = 62DE7C3F18C93AC200EF10AC /* WFBezierCombinatorics.app */;
+			productType = "com.apple.product-type.application";
+		};
+		62DE7C5F18C93AC200EF10AC /* WFBezierCombinatoricsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62DE7C7318C93AC200EF10AC /* Build configuration list for PBXNativeTarget "WFBezierCombinatoricsTests" */;
+			buildPhases = (
+				62DE7C5C18C93AC200EF10AC /* Sources */,
+				62DE7C5D18C93AC200EF10AC /* Frameworks */,
+				62DE7C5E18C93AC200EF10AC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				62DE7C6518C93AC200EF10AC /* PBXTargetDependency */,
+			);
+			name = WFBezierCombinatoricsTests;
+			productName = WFBezierCombinatoricsTests;
+			productReference = 62DE7C6018C93AC200EF10AC /* WFBezierCombinatoricsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		62DE7C3718C93AC200EF10AC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = WF;
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Wireframe Software";
+				TargetAttributes = {
+					62DE7C5F18C93AC200EF10AC = {
+						TestTargetID = 62DE7C3E18C93AC200EF10AC;
+					};
+				};
+			};
+			buildConfigurationList = 62DE7C3A18C93AC200EF10AC /* Build configuration list for PBXProject "WFBezierCombinatorics" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 62DE7C3618C93AC200EF10AC;
+			productRefGroup = 62DE7C4018C93AC200EF10AC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				62DE7C3E18C93AC200EF10AC /* WFBezierCombinatorics */,
+				62DE7C5F18C93AC200EF10AC /* WFBezierCombinatoricsTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		62DE7C3D18C93AC200EF10AC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62DE7C4D18C93AC200EF10AC /* InfoPlist.strings in Resources */,
+				62DE7C5B18C93AC200EF10AC /* Images.xcassets in Resources */,
+				62DE7C5318C93AC200EF10AC /* Credits.rtf in Resources */,
+				62DE7C5918C93AC200EF10AC /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62DE7C5E18C93AC200EF10AC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62DE7C6B18C93AC200EF10AC /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		62DE7C3B18C93AC200EF10AC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62AF2EE818C943AB002D8678 /* WFBezierComboExampleView.m in Sources */,
+				62DE7C4F18C93AC200EF10AC /* main.m in Sources */,
+				62DE7C7918C93B6900EF10AC /* NSBezierPath+WFBezierCombinatorics.m in Sources */,
+				62DE7C7C18C93C4500EF10AC /* WFGeometry.c in Sources */,
+				62DE7C5618C93AC200EF10AC /* WFAppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62DE7C5C18C93AC200EF10AC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62AF2EE418C9414B002D8678 /* WFGeometry.c in Sources */,
+				62AF2EE518C94151002D8678 /* NSBezierPath+WFBezierCombinatorics.m in Sources */,
+				62DE7C6D18C93AC200EF10AC /* WFBezierCombinatoricsTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		62DE7C6518C93AC200EF10AC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 62DE7C3E18C93AC200EF10AC /* WFBezierCombinatorics */;
+			targetProxy = 62DE7C6418C93AC200EF10AC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		62DE7C4B18C93AC200EF10AC /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				62DE7C4C18C93AC200EF10AC /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		62DE7C5118C93AC200EF10AC /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				62DE7C5218C93AC200EF10AC /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		62DE7C5718C93AC200EF10AC /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				62DE7C5818C93AC200EF10AC /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		62DE7C6918C93AC200EF10AC /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				62DE7C6A18C93AC200EF10AC /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		62DE7C6E18C93AC200EF10AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		62DE7C6F18C93AC200EF10AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		62DE7C7118C93AC200EF10AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "WFBezierCombinatorics/WFBezierCombinatorics-Prefix.pch";
+				INFOPLIST_FILE = "WFBezierCombinatorics/WFBezierCombinatorics-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		62DE7C7218C93AC200EF10AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "WFBezierCombinatorics/WFBezierCombinatorics-Prefix.pch";
+				INFOPLIST_FILE = "WFBezierCombinatorics/WFBezierCombinatorics-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		62DE7C7418C93AC200EF10AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/WFBezierCombinatorics.app/Contents/MacOS/WFBezierCombinatorics";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "WFBezierCombinatorics/WFBezierCombinatorics-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		62DE7C7518C93AC200EF10AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/WFBezierCombinatorics.app/Contents/MacOS/WFBezierCombinatorics";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "WFBezierCombinatorics/WFBezierCombinatorics-Prefix.pch";
+				INFOPLIST_FILE = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		62DE7C3A18C93AC200EF10AC /* Build configuration list for PBXProject "WFBezierCombinatorics" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62DE7C6E18C93AC200EF10AC /* Debug */,
+				62DE7C6F18C93AC200EF10AC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		62DE7C7018C93AC200EF10AC /* Build configuration list for PBXNativeTarget "WFBezierCombinatorics" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62DE7C7118C93AC200EF10AC /* Debug */,
+				62DE7C7218C93AC200EF10AC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		62DE7C7318C93AC200EF10AC /* Build configuration list for PBXNativeTarget "WFBezierCombinatoricsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62DE7C7418C93AC200EF10AC /* Debug */,
+				62DE7C7518C93AC200EF10AC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 62DE7C3718C93AC200EF10AC /* Project object */;
+}

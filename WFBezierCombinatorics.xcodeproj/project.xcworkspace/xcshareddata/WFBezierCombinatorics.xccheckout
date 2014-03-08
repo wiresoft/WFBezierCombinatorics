@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>B6C13D9C-51FF-4580-A93C-BEF030159F24</string>
+	<key>IDESourceControlProjectName</key>
+	<string>WFBezierCombinatorics</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>4329D70C-76E3-43B2-A77A-D0C633CAFE90</key>
+		<string>https://github.com/wiresoft/WFBezierCombinatorics.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>WFBezierCombinatorics.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>4329D70C-76E3-43B2-A77A-D0C633CAFE90</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/wiresoft/WFBezierCombinatorics.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>4329D70C-76E3-43B2-A77A-D0C633CAFE90</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>4329D70C-76E3-43B2-A77A-D0C633CAFE90</string>
+			<key>IDESourceControlWCCName</key>
+			<string>WFBezierCombinatorics</string>
+		</dict>
+	</array>
+</dict>
+</plist>
