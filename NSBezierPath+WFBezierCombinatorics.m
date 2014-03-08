@@ -472,7 +472,11 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 	// Get all the path vertices and intersections as a point cloud.
 	WFBezierVertexNode * vertices = NULL;
 	NSUInteger vertexCount = [self WFGatherOperatingPointsForPath:path outPoints:&vertices];
-	if ( !vertexCount ) return nil;
+	if ( !vertices ) return nil;
+	if ( !vertexCount ) {
+		free( vertices );
+		return nil;
+	}
 	
 	// Create sorted indexes for both A and B paths to allow us to traverse the point-cloud in polygon winding order.
 	WFBezierIndexChain * indexedPathA = malloc( sizeof(WFBezierIndexChain) + sizeof(NSUInteger)*vertexCount );
@@ -818,6 +822,9 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		}
 	}
 	
+	free( vertices );
+	free( indexedPathA );
+	free( indexedPathB );
 	return result;
 }
 
