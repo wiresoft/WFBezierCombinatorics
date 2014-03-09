@@ -710,6 +710,26 @@
 	element = [result elementAtIndex:4 associatedPoints:points];
 	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
 	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(50.0, 0.0)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	
+	// Special case for intersections that seems to be causing problems
+	a = [NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 50.0, 100.0, 100.0)];
+	b = [NSBezierPath bezierPathWithRect:NSMakeRect(0.0, 0.0, 100.0, 100.0)];
+	result = [a WFIntersectWithPath:b];
+	element = [result elementAtIndex:0 associatedPoints:points];
+	XCTAssertTrue( element == NSMoveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(100.0, 50.0)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:1 associatedPoints:points];
+	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(100.0, 100.0)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:2 associatedPoints:points];
+	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(0.0, 100.0)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:3 associatedPoints:points];
+	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(0.0, 50.0)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:4 associatedPoints:points];
+	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(100.0, 50.0)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
 }
 
 - (void)testBezierPathCornerThroughEdge

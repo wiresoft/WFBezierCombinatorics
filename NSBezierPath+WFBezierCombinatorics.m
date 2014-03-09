@@ -26,6 +26,7 @@
 
 #define WFBezierTraversal_IgnoreParallelIntersections	(1<<0)	// traversal algorithm will ignore special cases for parallel intersections.
 #define WFBezierTraversal_DontSkipParallelIntersections	(1<<1)	// traversal algorithm will not attempt to skip parallel edge intersections to optimise output.
+#define WFBezierTraversal_InvertParallelPathSwitch		(1<<2)	// traversal algorithm will invert the creteria used to switch paths from parallel intersect points.
 
 
 typedef struct {
@@ -754,9 +755,16 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		if ( !(node->flags & WFBezierFlag_PointInvalid) && (node->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
 			if ( (node->flags & WFBezierFlag_ParallelIntersect) && !(options & WFBezierTraversal_IgnoreParallelIntersections) ) {
 				// If node is a parallel path intersection, we should only switch paths if the next node on either path is NOT an intersection
-				WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode( node, vertices, indexedPathA, YES );
-				WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode( node, vertices, indexedPathB, NO );
-				switchPath = (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) || (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB);
+				
+				if ( (isPathA && !(options & WFBezierTraversal_InvertParallelPathSwitch)) || (!isPathA && (options & WFBezierTraversal_InvertParallelPathSwitch)) ) {
+					WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode( node, vertices, indexedPathB, NO );
+					switchPath = (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB);
+				} else {
+					WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode( node, vertices, indexedPathA, YES );
+					switchPath = (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB);
+				}
+				
+				
 				ignoreVertex = !switchPath && !(options & WFBezierTraversal_DontSkipParallelIntersections);
 			} else {
 				switchPath = YES;
@@ -1020,7 +1028,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 - (NSBezierPath * )WFIntersectWithPath:(NSBezierPath *)path
 {
 	NSBezierPath * result = [self WFTraversePath:path
-									 withOptions:WFBezierTraversal_DontSkipParallelIntersections
+									 withOptions:WFBezierTraversal_DontSkipParallelIntersections|WFBezierTraversal_InvertParallelPathSwitch
 									 pointFinder:^WFBezierVertexNode * (WFBezierVertexNode *vertices, NSUInteger vertexCount, WFBezierIndexChain *indexedPathA, WFBezierIndexChain *indexedPathB, BOOL * isPathA) {
 	 
 		WFBezierVertexNode * node = NULL;
