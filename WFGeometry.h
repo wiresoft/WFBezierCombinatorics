@@ -239,6 +239,15 @@ bool WFGeometryVectorsOnSameSideOfLine( CGPoint lineVector, CGPoint v1, CGPoint 
  */
 bool WFGeometryVectorsCoincident( CGPoint lineVector, CGPoint v1, CGPoint v2 );
 
+/** Determines if a set of set of two test vectors overlaps another set of two test vectors.
+ @param v1 First vector in set 1
+ @param v2 Second vector in set 1
+ @param v3 First vector in set 2
+ @param v4 Second vector in set 2
+ @return True if both vectors in set 1 overlap both vectors in set 2
+ */
+bool WFGeometryVectorsCoincident4( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v4 );
+
 /** Determines if a polygon corner is crossed by a corner formed by another polygon
  @param v1
  @param v2

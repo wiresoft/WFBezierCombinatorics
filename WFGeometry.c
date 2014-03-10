@@ -566,6 +566,24 @@ bool WFGeometryVectorsCoincident( CGPoint lineVector, CGPoint v1, CGPoint v2 )
 	return false;
 }
 
+bool WFGeometryVectorsCoincident4( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v4 )
+{
+	WFGeometryNormalizeVector( &v1 );
+	WFGeometryNormalizeVector( &v2 );
+	WFGeometryNormalizeVector( &v3 );
+	WFGeometryNormalizeVector( &v4 );
+	
+	CGFloat z1 = WFGeometryDeterminant2x2( v1.x, v1.y, v3.x, v3.y );
+	CGFloat z2 = WFGeometryDeterminant2x2( v2.x, v2.y, v4.x, v4.y );
+	if ( fabs(z1) < 1.0E-16 && fabs(z2) < 1.0E-16 && (signbit(z1) == signbit(z2)) ) return true;
+	
+	z1 = WFGeometryDeterminant2x2( v2.x, v2.y, v3.x, v3.y );
+	z2 = WFGeometryDeterminant2x2( v1.x, v1.y, v4.x, v4.y );
+	if ( fabs(z1) < 1.0E-16 && fabs(z2) < 1.0E-16 && (signbit(z1) == signbit(z2)) ) return true;
+	
+	return false;
+}
+
 
 bool WFGeometryVectorsCrossCorner( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v4 )
 {

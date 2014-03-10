@@ -24,6 +24,10 @@
 #define WFBezierFlag_PointUsed			(1<<14)		// Vertex has been used in path reconstruction
 
 
+
+#define WFNodeIsOnBothPaths(node) (((node)->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB))
+
+
 #define WFBezierTraversal_IgnoreParallelIntersections	(1<<0)	// traversal algorithm will ignore special cases for parallel intersections.
 #define WFBezierTraversal_DontSkipParallelIntersections	(1<<1)	// traversal algorithm will not attempt to skip parallel edge intersections to optimise output.
 #define WFBezierTraversal_InvertParallelPathSwitch		(1<<2)	// traversal algorithm will invert the creteria used to switch paths from parallel intersect points.
@@ -55,6 +59,9 @@ typedef struct {
 
 #pragma mark - Static C Functions
 
+CGPoint midPointBetweenNodes( WFBezierVertexNode * a, WFBezierVertexNode * b, BOOL isPathA );
+BOOL parallelIntersectNodeIsInsideUnion( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * indexedPathA, WFBezierIndexChain * indexedPathB );
+BOOL parallelIntersectNodeIsEnteringUnion( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * indexedPathA, WFBezierIndexChain * indexedPathB, BOOL isPathA );
 WFBezierVertexNode * findMoveToNodeOverlappingNode( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, NSUInteger vertexCount, BOOL isPathA );
 WFBezierVertexNode * nodeOnIndexPathAfterNode( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * path, BOOL isPathA );
 WFBezierVertexNode * nextNonRedundantNode( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * path, BOOL isPathA );
@@ -64,6 +71,63 @@ WFBezierVertexNode * originalVertexOverlappingNode( WFBezierVertexNode * origin,
 WFBezierVertexNode * intersectionOverlappingNodeIfExists( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * path, BOOL isPathA );
 void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBezierIndexChain * indexedPathA_p, WFBezierIndexChain * indexedPathB_p);
 
+CGPoint midPointBetweenNodes( WFBezierVertexNode * a, WFBezierVertexNode * b, BOOL isPathA )
+{
+	switch ( (isPathA)?b->elementA:b->elementB ) {
+		case NSClosePathBezierPathElement:
+		case NSLineToBezierPathElement:
+		case NSMoveToBezierPathElement:
+			return CGPointMake( (b->intersectionPoint.x+a->intersectionPoint.x)/2.0, (b->intersectionPoint.y+a->intersectionPoint.y)/2.0 );
+		
+		default: {
+			CGFloat curveT = (isPathA)?(a->pathA_t + b->pathA_t)/2.0:(a->pathB_t + b->pathB_t)/2.0;
+			curveT -= floor( curveT );
+			return WFGeometryEvaluateCubicCurve( curveT, (isPathA)?b->controlPointsA:b->controlPointsB );
+		}
+	}
+}
+
+BOOL parallelIntersectNodeIsInsideUnion( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * indexedPathA, WFBezierIndexChain * indexedPathB )
+{
+	assert((origin->flags & WFBezierFlag_ParallelIntersect));
+	WFBezierVertexNode * nextNodeA;
+	WFBezierVertexNode * nextNodeB;
+	
+	nextNodeA = nodeOnIndexPathAfterNode( origin, vertices, indexedPathA, YES );
+	if ( (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) && !(nextNodeA->flags & WFBezierFlag_ParallelIntersect) ) return NO;
+	nextNodeB = nodeOnIndexPathAfterNode( origin, vertices, indexedPathB, NO );
+	if ( (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) && !(nextNodeB->flags & WFBezierFlag_ParallelIntersect) ) return NO;
+	if ( nextNodeA == nextNodeB ) return NO;
+	
+	nextNodeA = nodeOnIndexPathBeforeNode( origin, vertices, indexedPathA, YES );
+	if ( (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) && !(nextNodeA->flags & WFBezierFlag_ParallelIntersect) ) return NO;
+	nextNodeB = nodeOnIndexPathBeforeNode( origin, vertices, indexedPathB, NO );
+	if ( (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) && !(nextNodeB->flags & WFBezierFlag_ParallelIntersect) ) return NO;
+	if ( nextNodeA == nextNodeB ) return NO;
+	
+	return YES;
+}
+
+
+BOOL parallelIntersectNodeIsEnteringUnion( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, WFBezierIndexChain * indexedPathA, WFBezierIndexChain * indexedPathB, BOOL isPathA )
+{
+	assert((origin->flags & WFBezierFlag_ParallelIntersect));
+	if ( isPathA ) {
+		WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode( origin, vertices, indexedPathA, YES );
+		if ( !(nextNodeA->flags & WFBezierFlag_ParallelIntersect) ) return NO;
+		WFBezierVertexNode * subsequentNodeB = nodeOnIndexPathAfterNode( nextNodeA, vertices, indexedPathB, NO );
+		if ( subsequentNodeB == origin ) return YES;
+		if ( (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) ) return NO;
+		return parallelIntersectNodeIsInsideUnion(nextNodeA, vertices, indexedPathA, indexedPathB );
+	} else {
+		WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode( origin, vertices, indexedPathB, NO );
+		if ( !(nextNodeB->flags & WFBezierFlag_ParallelIntersect) ) return NO;
+		WFBezierVertexNode * subsequentNodeA = nodeOnIndexPathAfterNode( nextNodeB, vertices, indexedPathA, YES );
+		if ( subsequentNodeA == origin ) return YES;
+		if ( (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) ) return NO;
+		return parallelIntersectNodeIsInsideUnion(nextNodeB, vertices, indexedPathA, indexedPathB );
+	}
+}
 
 WFBezierVertexNode * findMoveToNodeOverlappingNode( WFBezierVertexNode * origin, WFBezierVertexNode * vertices, NSUInteger vertexCount, BOOL isPathA )
 {
@@ -661,10 +725,11 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		}
 		if ( pathAOnEndpt && pathBOnEndpt ) {
 			crossesBoundary = WFGeometryVectorsCrossCorner( testVec1A, testVec2A, testVec1B, testVec2B );
+			coincidentBoundaries |= originalA && originalB && WFGeometryVectorsCoincident4( testVec1A, testVec2A, testVec1B, testVec2B );
 		}
 		
 		if ( originalA ) {
-			if ( crossesBoundary ) {
+			if ( crossesBoundary || coincidentBoundaries ) {
 				if ( coincidentBoundaries ) node->flags |= WFBezierFlag_ParallelIntersect;
 				node->flags |= originalA->flags & (WFBezierFlag_SubPathStartA|WFBezierFlag_SubPathEndA|WFBezierFlag_OriginalEndptA);
 				node->flags |= WFBezierFlag_Coincident;
@@ -691,7 +756,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 			}
 		}
 		if ( originalB ) {
-			if ( crossesBoundary ) {
+			if ( crossesBoundary || coincidentBoundaries ) {
 				if ( coincidentBoundaries ) node->flags |= WFBezierFlag_ParallelIntersect;
 				node->flags |= originalB->flags & (WFBezierFlag_SubPathStartB|WFBezierFlag_SubPathEndB|WFBezierFlag_OriginalEndptB);
 				node->flags |= WFBezierFlag_Coincident;
@@ -737,7 +802,6 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		NSUInteger vertexIndex = (isPathA)?indexedPathA->indexes[pathIndex]:indexedPathB->indexes[pathIndex];
 		WFBezierVertexNode * node = &vertices[vertexIndex];
 		BOOL switchPath = NO;
-		BOOL ignoreVertex = NO;
 		
 		if ( !isBezierPathStarted ) {
 			// Sub-path has not been started, so find a starting node to use
@@ -754,18 +818,77 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		// Node is an intersection, so switch to the alternate path unless node is a a parallel intersection in which case additional checks are needed to determine if we should switch paths.
 		if ( !(node->flags & WFBezierFlag_PointInvalid) && (node->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
 			if ( (node->flags & WFBezierFlag_ParallelIntersect) && !(options & WFBezierTraversal_IgnoreParallelIntersections) ) {
+
 				// If node is a parallel path intersection, we should only switch paths if the next node on either path is NOT an intersection
-				
-				if ( (isPathA && !(options & WFBezierTraversal_InvertParallelPathSwitch)) || (!isPathA && (options & WFBezierTraversal_InvertParallelPathSwitch)) ) {
-					WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode( node, vertices, indexedPathB, NO );
-					switchPath = (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB);
+				/*if ( parallelIntersectNodeIsEnteringUnion(node, vertices, indexedPathA, indexedPathB, isPathA)) {
+					// Can't enter into a union formed by parallel nodes from both paths
+					switchPath = YES;
 				} else {
-					WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode( node, vertices, indexedPathA, YES );
-					switchPath = (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB);
+					WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode(node, vertices, indexedPathA, YES);
+					WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode(node, vertices, indexedPathB, NO);
+					if ( nextNodeA != nextNodeB ) {
+						if ( isPathA ) {
+							// Can't turn a corner while following parallel intersections
+							switchPath = (node->flags & WFBezierFlag_OriginalEndptA) &&
+											(nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB);
+							if ( !switchPath ) {
+								if ( (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) && !(nextNodeA->flags & WFBezierFlag_ParallelIntersect) ) {
+									// Can't cross a boundary to a real intersection while following parallel intersectons
+									switchPath = YES;
+								}
+							}
+							if ( !switchPath && [path WFContainsNode:nextNodeA] ) {
+								switchPath = YES;
+							}
+						} else {
+							// Can't turn a corner while following parallel intersections
+							switchPath = (node->flags & WFBezierFlag_OriginalEndptB) &&
+											(nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB);
+							if ( !switchPath ) {
+								if ( (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) && !(nextNodeB->flags & WFBezierFlag_ParallelIntersect) ) {
+									// Can't cross a boundary to a real intersection while following parallel intersectons
+									switchPath = YES;
+								}
+							}
+							if ( !switchPath && [self WFContainsNode:nextNodeB] ) {
+								switchPath = YES;
+							}
+						}
+					}
+				}*/
+				
+				BOOL canUsePathA = YES;
+				BOOL canUsePathB = YES;
+				
+				WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode(node, vertices, indexedPathA, YES);
+				WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode(node, vertices, indexedPathB, NO);
+				
+				if ( nextNodeA != nextNodeB ) {
+					canUsePathA &= !parallelIntersectNodeIsEnteringUnion(node, vertices, indexedPathA, indexedPathB, YES);
+					canUsePathB &= !parallelIntersectNodeIsEnteringUnion(node, vertices, indexedPathA, indexedPathB, NO);
+					
+					if ( WFNodeIsOnBothPaths( nextNodeA ) ) {
+						CGPoint testPtA = midPointBetweenNodes( node, nextNodeA, YES );
+						canUsePathA = canUsePathA && ![path containsPoint:testPtA];
+					} else {
+						canUsePathA = canUsePathA && ![path WFContainsNode:nextNodeA];
+					}
+					if ( WFNodeIsOnBothPaths( nextNodeB ) ) {
+						CGPoint testPtB = midPointBetweenNodes( node, nextNodeB, NO );
+						canUsePathB = canUsePathB && ![self containsPoint:testPtB];
+					} else {
+						canUsePathB = canUsePathB && ![self WFContainsNode:nextNodeB];
+					}
 				}
 				
+				if ( !canUsePathA && !canUsePathB ) {
+					// end this sub-path at this node if there is no way to traverse from it
+					node->flags |= WFBezierFlag_PointUsed;
+					NSLog( @"Terminating path" );
+				}
+				// Switch paths from a parallel intersect if we can't traverse to the next node on the current path
+				switchPath = (isPathA && !canUsePathA) || (!isPathA && !canUsePathB);
 				
-				ignoreVertex = !switchPath && !(options & WFBezierTraversal_DontSkipParallelIntersections);
 			} else {
 				switchPath = YES;
 			}
@@ -788,7 +911,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		//
 		// Add the current node to the result path if it was valid
 		//
-		if ( !(node->flags & WFBezierFlag_PointInvalid) && !ignoreVertex ) {
+		if ( !(node->flags & WFBezierFlag_PointInvalid) ) {
 			if ( !isBezierPathStarted ) {
 				[result moveToPoint:node->intersectionPoint];
 				isBezierPathStarted = YES;
@@ -894,73 +1017,104 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 									 withOptions:0
 									 pointFinder:^WFBezierVertexNode * (WFBezierVertexNode *vertices, NSUInteger vertexCount, WFBezierIndexChain *indexedPathA, WFBezierIndexChain *indexedPathB, BOOL * isPathA) {
 		
-		WFBezierVertexNode * node = NULL;
-		BOOL freeVertexFound = NO;
-		
 		for ( NSUInteger i = 0; i < vertexCount; i++ ) {
 			if ( vertices[i].flags & (WFBezierFlag_PointUsed|WFBezierFlag_PointInvalid) ) continue;
-			node = &vertices[i];
+			WFBezierVertexNode * node = &vertices[i];
 			
 			if ( (node->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
 				// new node is an intersection, figure out which path to traverse
 				
-				WFBezierVertexNode * nextNode = nodeOnIndexPathAfterNode(node, vertices, indexedPathA, YES);
-				if ( (nextNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) && ![path WFContainsNode:nextNode] ) {
-					// Next node on pathA is not an intersection and is not contained in the other path so we can use this node on path A.
-					*isPathA = NO;
-				} else if ( (nextNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) && nextNode->elementA == NSCurveToBezierPathElement ) {
-					CGFloat curveT = (node->pathA_t + nextNode->pathA_t)/2.0;
-					curveT -= floor( curveT );
-					CGPoint midPoint = WFGeometryEvaluateCubicCurve( curveT, node->controlPointsA );
-					if ( ![path containsPoint:midPoint] ) {
-						freeVertexFound = YES;
-						*isPathA = NO;
-						break;
-					} else {
+				//if ( node->pathAIndex == 12 && node->pathBIndex == 15 ) {
+				//	NSLog(@"Foo");
+				//}
+				WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode(node, vertices, indexedPathA, YES);
+				WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode(node, vertices, indexedPathB, NO);
+				
+				if ( node->flags & WFBezierFlag_ParallelIntersect ) {
+					if ( parallelIntersectNodeIsInsideUnion(node, vertices, indexedPathA, indexedPathB) ) {
+						node->flags |= WFBezierFlag_PointUsed;
 						continue;
 					}
+					// Parallel intersect nodes can start on either path, and we can always start on a parallel intersection as long as it is not inside the union.
+					return node;
+					
+					/*
+					if ( (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) &&
+						 !(nextNodeA->flags & WFBezierFlag_ParallelIntersect) &&
+						 (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) &&
+						 (nextNodeB->flags & WFBezierFlag_ParallelIntersect) &&
+						 !(nextNodeA->flags & WFBezierFlag_OriginalEndptA) ) {
+						*isPathA = YES;
+						return node;
+					}
+					if ( (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) &&
+						 !(nextNodeB->flags & WFBezierFlag_ParallelIntersect) &&
+						 (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) &&
+						 (nextNodeA->flags & WFBezierFlag_ParallelIntersect) &&
+						 !(nextNodeB->flags & WFBezierFlag_OriginalEndptB) ) {
+						*isPathA = NO;
+						return node;
+					}
+					if ( (nextNodeA->flags & WFBezierFlag_ParallelIntersect) &&
+						 (nextNodeB->flags & WFBezierFlag_ParallelIntersect) &&
+						 parallelIntersectNodeIsInsideUnion( nextNodeA, vertices, indexedPathA, indexedPathB ) &&
+						!parallelIntersectNodeIsInsideUnion( nextNodeB, vertices, indexedPathA, indexedPathB )) {
+						*isPathA = YES;
+						return node;
+					}
+					if ( (nextNodeA->flags & WFBezierFlag_ParallelIntersect) &&
+						 (nextNodeB->flags & WFBezierFlag_ParallelIntersect) &&
+						!parallelIntersectNodeIsInsideUnion( nextNodeA, vertices, indexedPathA, indexedPathB ) &&
+						 parallelIntersectNodeIsInsideUnion( nextNodeB, vertices, indexedPathA, indexedPathB )) {
+						*isPathA = NO;
+						return node;
+					}
+					*/
 				}
 				
-				nextNode = nodeOnIndexPathAfterNode(node, vertices, indexedPathB, NO);
-				if ( (nextNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) && ![self WFContainsNode:nextNode] ) {
-					// Next node on pathA is not an intersection and is not contained in the other path so we can use this node on path A.
-					*isPathA = YES;
-				} else if ( (nextNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) && nextNode->elementB == NSCurveToBezierPathElement ) {
-					CGFloat curveT = (node->pathB_t + nextNode->pathB_t)/2.0;
-					curveT -= floor( curveT );
-					CGPoint midPoint = WFGeometryEvaluateCubicCurve( curveT, node->controlPointsB );
-					if ( ![self containsPoint:midPoint] ) {
-						freeVertexFound = YES;
-						*isPathA = YES;
-						break;
-					} else {
-						continue;
+				if ( (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
+					if ( ![path WFContainsNode:nextNodeA] ) {
+						// Next node on pathA is not an intersection and is not contained in the other path so we can use this node on path A.
+						*isPathA = NO;
+						return node;
 					}
+					
+				}
+				if ( (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
+					if ( ![self WFContainsNode:nextNodeB] ) {
+						// Next node on pathB is not an intersection and is not contained in the other path so we can use this node on path B.
+						*isPathA = YES;
+						return node;
+					}
+				}
+				if ( nextNodeA == nextNodeB && (nextNodeA->flags & WFBezierFlag_ParallelIntersect) ) {
+					if ( node->flags & WFBezierFlag_OriginalEndptA ) {
+						*isPathA = YES;
+					} else {
+						*isPathA = NO;
+					}
+					return node;
 				}
 				
 			} else {
 				// new node is an endpoint
 				*isPathA = (node->flags & WFBezierFlag_PathA);
 				if ( *isPathA ) {
-					if ( [path WFContainsNode:node] ) {
+					if ( ![path WFContainsNode:node] ) {
 						// union of paths con't use points contained by the other path
-						node->flags |= WFBezierFlag_PointUsed;
-						continue;
+						return node;
 					}
 				} else {
-					if ( [self WFContainsNode:node] ) {
+					if ( ![self WFContainsNode:node] ) {
 						// union of paths con't use points contained by the other path
-						node->flags |= WFBezierFlag_PointUsed;
-						continue;
+						return node;
 					}
 				}
 			}
-			
-			freeVertexFound = YES;
-			break;
+			node->flags |= WFBezierFlag_PointUsed;
+			continue;
 		}
-		if ( !freeVertexFound ) return NULL;
-		return node;
+		return NULL;
 	}];
 	
 	return result;
