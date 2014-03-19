@@ -25,16 +25,15 @@
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		*/
 		
-		
 		//_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(100.0, 100.0, 300.0, 300.0)];
 		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(120.0, 120.0, 260.0, 260.0)] bezierPathByReversingPath]];
-		
 		
 		_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(50.0, 50.0, 300.0, 300.0)];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
+		
 		
 		/*
 		_pathA = [NSBezierPath bezierPath];
@@ -65,13 +64,17 @@
 		[_pathB appendBezierPath:[NSBezierPath bezierPathWithRect:NSMakeRect(420.0, 320.0, 20.0, 220.0)]];
 		*/
 		
+		/*
 		_pathB = [NSBezierPath bezierPathWithRect:NSMakeRect(280.0, 280.0, 300.0, 300.0)];
 		[_pathB appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(300.0, 300.0, 260.0, 260.0)] bezierPathByReversingPath]];
 		[_pathB appendBezierPath:[NSBezierPath bezierPathWithRect:NSMakeRect(420.0, 320.0, 20.0, 220.0)]];
+		*/
 		
-		//NSAffineTransform* tfm = [NSAffineTransform transform];
+		NSAffineTransform* tfm = [NSAffineTransform transform];
 		//[tfm translateXBy:300 yBy:0];
-		//_pathB = [tfm transformBezierPath:[self pathA]];
+		//[tfm translateXBy:130 yBy:-20];
+		[tfm translateXBy:330 yBy:-20];
+		_pathB = [tfm transformBezierPath:[self pathA]];
 		
 		[_pathB setLineWidth:2.0];
 	}

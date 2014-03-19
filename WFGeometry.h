@@ -13,6 +13,9 @@
 // Distance below which two points may be considered coincident by some algorithms
 #define WFGeometryPointResolution (1.0E-8)
 
+// Angle below which angles may be considered equal
+#define WFGeometryAngularResolution (1.0E-16)
+
 // Distance below which two parametric values may be considered coincident by some algorithms
 #define WFGeometryParametricResolution (1.0E-8)
 
@@ -253,7 +256,7 @@ bool WFGeometryVectorsCoincident4( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v
  @param v2
  @param v3
  @param v4
- @return if the corner formed by v1 and v2 and crossed by the corner formed by v3 and v4, returns YES. Otherwise returns NO. If any vector is parallel to any other vector, the result is undefined.
+ @return If the corner formed by v1 and v2 is crossed by the corner formed by v3 and v4, returns YES. Otherwise returns NO. If any vector is parallel to any other vector, the result is undefined.
  */
 bool WFGeometryVectorsCrossCorner( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v4 );
 

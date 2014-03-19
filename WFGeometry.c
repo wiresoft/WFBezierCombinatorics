@@ -410,6 +410,7 @@ bool WFGeometryRectIntersectsLine( CGRect rect, CGPoint pointA, CGPoint pointB )
 bool WFGeometryLineIntersectsLine( CGPoint pt1, CGPoint pt2, CGPoint pt3, CGPoint pt4 )
 {
 	CGFloat den = (pt4.y-pt3.y)*(pt2.x-pt1.x) - (pt4.x-pt3.x)*(pt2.y-pt1.y);
+	if ( fabs(den) < WFGeometryAngularResolution ) return false;
 	CGFloat ka = ((pt4.x-pt3.x)*(pt1.y-pt3.y) - (pt4.y-pt3.y)*(pt1.x-pt3.x))/den;
 	CGFloat kb = ((pt2.x-pt1.x)*(pt1.y-pt3.y) - (pt2.y-pt1.y)*(pt1.x-pt3.x))/den;
 	return ka >= 0.0 && ka <= 1.0 && kb >= 0.0 && kb <= 1.0;
@@ -418,6 +419,7 @@ bool WFGeometryLineIntersectsLine( CGPoint pt1, CGPoint pt2, CGPoint pt3, CGPoin
 bool WFGeometryLineToLineIntersection( CGPoint pt1, CGPoint pt2, CGPoint pt3, CGPoint pt4, CGFloat * outT1, CGFloat * outT2 )
 {
 	CGFloat den = (pt4.y-pt3.y)*(pt2.x-pt1.x) - (pt4.x-pt3.x)*(pt2.y-pt1.y);
+	if ( fabs(den) < WFGeometryAngularResolution ) return false;
 	CGFloat ka = ((pt4.x-pt3.x)*(pt1.y-pt3.y) - (pt4.y-pt3.y)*(pt1.x-pt3.x))/den;
 	CGFloat kb = ((pt2.x-pt1.x)*(pt1.y-pt3.y) - (pt2.y-pt1.y)*(pt1.x-pt3.x))/den;
 	if ( ka >= 0.0 && ka <= 1.0 && kb >= 0.0 && kb <= 1.0 ) {
@@ -557,11 +559,11 @@ bool WFGeometryVectorsCoincident( CGPoint lineVector, CGPoint v1, CGPoint v2 )
 {
 	WFGeometryNormalizeVector( &v1 );
 	CGFloat z = WFGeometryDeterminant2x2( v1.x, v1.y, lineVector.x, lineVector.y );
-	if ( fabs(z) < 1.0E-16 ) return true;
+	if ( fabs(z) < WFGeometryAngularResolution ) return true;
 	
 	WFGeometryNormalizeVector( &v2 );
 	z = WFGeometryDeterminant2x2( v2.x, v2.y, lineVector.x, lineVector.y );
-	if ( fabs(z) < 1.0E-16 ) return true;
+	if ( fabs(z) < WFGeometryAngularResolution ) return true;
 	
 	return false;
 }
@@ -575,11 +577,11 @@ bool WFGeometryVectorsCoincident4( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v
 	
 	CGFloat z1 = WFGeometryDeterminant2x2( v1.x, v1.y, v3.x, v3.y );
 	CGFloat z2 = WFGeometryDeterminant2x2( v2.x, v2.y, v4.x, v4.y );
-	if ( fabs(z1) < 1.0E-16 && fabs(z2) < 1.0E-16 && (signbit(z1) == signbit(z2)) ) return true;
+	if ( fabs(z1) < WFGeometryAngularResolution && fabs(z2) < WFGeometryAngularResolution && (signbit(z1) == signbit(z2)) ) return true;
 	
 	z1 = WFGeometryDeterminant2x2( v2.x, v2.y, v3.x, v3.y );
 	z2 = WFGeometryDeterminant2x2( v1.x, v1.y, v4.x, v4.y );
-	if ( fabs(z1) < 1.0E-16 && fabs(z2) < 1.0E-16 && (signbit(z1) == signbit(z2)) ) return true;
+	if ( fabs(z1) < WFGeometryAngularResolution && fabs(z2) < WFGeometryAngularResolution && (signbit(z1) == signbit(z2)) ) return true;
 	
 	return false;
 }
