@@ -25,14 +25,14 @@
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		*/
 		
-		//_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(100.0, 100.0, 300.0, 300.0)];
-		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(120.0, 120.0, 260.0, 260.0)] bezierPathByReversingPath]];
+		_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(100.0, 100.0, 300.0, 300.0)];
+		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(120.0, 120.0, 260.0, 260.0)] bezierPathByReversingPath]];
 		
-		_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(50.0, 50.0, 300.0, 300.0)];
-		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
-		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
-		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
-		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
+		//_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(50.0, 50.0, 300.0, 300.0)];
+		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
+		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
+		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
+		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		
 		
 		/*
@@ -71,8 +71,6 @@
 		*/
 		
 		NSAffineTransform* tfm = [NSAffineTransform transform];
-		//[tfm translateXBy:300 yBy:0];
-		//[tfm translateXBy:130 yBy:-20];
 		[tfm translateXBy:330 yBy:-20];
 		_pathB = [tfm transformBezierPath:[self pathA]];
 		
@@ -134,7 +132,7 @@
 	NSPoint mousePoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
  
 	// "snap" mousepoint handling so that exact alignment of paths is easy to produce
-	// Use these to hunt for find edge cases (pun intended!) by dragging shapes around
+	// Use these to hunt for edge cases by dragging shapes around.
 	CGFloat rx, ry;
 	rx = fmod( mousePoint.x, 10.0 );
 	ry = fmod( mousePoint.y, 10.0 );
@@ -156,7 +154,7 @@
 	NSPoint mousePoint = [self convertPoint:[theEvent locationInWindow] fromView:nil];
 	
 	// "snap" mousepoint handling so that exact alignment of paths is easy to produce
-	// Use these to hunt for find edge cases (pun intended!) by dragging shapes around
+	// Use these to hunt for find edge by dragging shapes around.
 	CGFloat rx, ry;
 	rx = fmod( mousePoint.x, 10.0 );
 	ry = fmod( mousePoint.y, 10.0 );
