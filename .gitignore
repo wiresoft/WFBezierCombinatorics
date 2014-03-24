@@ -1,0 +1,20 @@
+######################
+# OS generated files #
+######################
+*.DS_Store
+ehthumbs.db
+Icon?
+Thumbs.db
+
+
+######################
+# XCode Files        #
+######################
+*.xcuserstate
+*.xccheckout
+
+
+######################
+# AppleDoc Files     #
+######################
+docset-installed.txt
