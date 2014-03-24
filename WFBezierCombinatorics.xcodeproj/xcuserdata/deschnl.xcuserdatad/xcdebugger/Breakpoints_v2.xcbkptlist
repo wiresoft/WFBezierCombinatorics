@@ -51,11 +51,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
-            timestampString = "416975479.634199"
+            timestampString = "417311896.904416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "2069"
-            endingLineNumber = "2069"
+            startingLineNumber = "2169"
+            endingLineNumber = "2169"
             landmarkName = "-testCurveZeroFinding"
             landmarkType = "5">
          </BreakpointContent>
@@ -67,11 +67,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
-            timestampString = "416975479.634199"
+            timestampString = "417311896.904416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1978"
-            endingLineNumber = "1978"
+            startingLineNumber = "2078"
+            endingLineNumber = "2078"
             landmarkName = "-testBezierPathSubtraction"
             landmarkType = "5">
          </BreakpointContent>
@@ -83,11 +83,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
-            timestampString = "416975479.634199"
+            timestampString = "417311896.904416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1873"
-            endingLineNumber = "1873"
+            startingLineNumber = "1973"
+            endingLineNumber = "1973"
             landmarkName = "-testBezierParallelRectsWithOverlappingCongruentSides"
             landmarkType = "5">
          </BreakpointContent>
@@ -98,58 +98,12 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NSBezierPath+WFBezierCombinatorics.m"
-            timestampString = "416975847.279356"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1112"
-            endingLineNumber = "1112"
-            landmarkName = "-WFTraversePath:withOptions:pointFinder:parallelIntersectRule:"
-            landmarkType = "5">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[NSBezierPath(WFBezierCombinatorics) WFTraversePath:withOptions:pointFinder:parallelIntersectRule:]"
-                  moduleName = "WFBezierCombinatorics"
-                  urlString = "file:///Users/deschnl/Documents/Projects/WFBezierCombinatorics/WFBezierCombinatorics/WFBezierCombinatorics/NSBezierPath+WFBezierCombinatorics.m"
-                  timestampString = "416808110.32231"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1071"
-                  endingLineNumber = "1071"
-                  offsetFromSymbolStart = "7194">
-               </Location>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "-[NSBezierPath(WFBezierCombinatorics) WFTraversePath:withOptions:pointFinder:parallelIntersectRule:]"
-                  moduleName = "WFBezierCombinatoricsTests"
-                  urlString = "file:///Users/deschnl/Documents/Projects/WFBezierCombinatorics/WFBezierCombinatorics/WFBezierCombinatorics/NSBezierPath+WFBezierCombinatorics.m"
-                  timestampString = "416808110.48902"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1071"
-                  endingLineNumber = "1071"
-                  offsetFromSymbolStart = "7194">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
-            timestampString = "416975479.634199"
+            timestampString = "417311896.904416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1818"
-            endingLineNumber = "1818"
+            startingLineNumber = "1918"
+            endingLineNumber = "1918"
             landmarkName = "-testBezierParallelComplexPolygon3"
             landmarkType = "5">
          </BreakpointContent>
@@ -161,11 +115,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "NSBezierPath+WFBezierCombinatorics.m"
-            timestampString = "416975847.279356"
+            timestampString = "417312005.50563"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1054"
-            endingLineNumber = "1054"
+            startingLineNumber = "1072"
+            endingLineNumber = "1072"
             landmarkName = "-WFTraversePath:withOptions:pointFinder:parallelIntersectRule:"
             landmarkType = "5">
          </BreakpointContent>
@@ -177,11 +131,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
-            timestampString = "416975479.634199"
+            timestampString = "417311896.904416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1711"
-            endingLineNumber = "1711"
+            startingLineNumber = "1811"
+            endingLineNumber = "1811"
             landmarkName = "-testBezierParallelComplexPolygon2"
             landmarkType = "5">
          </BreakpointContent>
@@ -193,11 +147,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
-            timestampString = "416975479.634199"
+            timestampString = "417311896.904416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1598"
-            endingLineNumber = "1598"
+            startingLineNumber = "1698"
+            endingLineNumber = "1698"
             landmarkName = "-testBezierParallelComplexPolygon1"
             landmarkType = "5">
          </BreakpointContent>
@@ -209,11 +163,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
-            timestampString = "416975479.634199"
+            timestampString = "417311896.904416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1325"
-            endingLineNumber = "1325"
+            startingLineNumber = "1396"
+            endingLineNumber = "1396"
             landmarkName = "-testBezierParallelOffsetrects"
             landmarkType = "5">
          </BreakpointContent>
@@ -224,42 +178,74 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "NSBezierPath+WFBezierCombinatorics.m"
-            timestampString = "416975847.279356"
+            filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
+            timestampString = "417311896.904416"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1389"
-            endingLineNumber = "1389"
-            landmarkName = "-WFSubtractPath:"
+            startingLineNumber = "1532"
+            endingLineNumber = "1532"
+            landmarkName = "-testBezierParallelRectsWithCongruentSides"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
+            timestampString = "417311896.904416"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "1588"
+            endingLineNumber = "1588"
+            landmarkName = "-testBezierParallelRectsWithCongruentSidesSubtract"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "NSBezierPath+WFBezierCombinatorics.m"
+            timestampString = "417311466.887788"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "860"
+            endingLineNumber = "860"
+            landmarkName = "-WFTraversePath:withOptions:pointFinder:parallelIntersectRule:"
             landmarkType = "5">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "__54-[NSBezierPath(WFBezierCombinatorics) WFSubtractPath:]_block_invoke"
+                  symbolName = "-[NSBezierPath(WFBezierCombinatorics) WFTraversePath:withOptions:pointFinder:parallelIntersectRule:]"
                   moduleName = "WFBezierCombinatorics"
-                  urlString = "file:///Users/deschnl/Documents/Projects/WFBezierCombinatorics/WFBezierCombinatorics/WFBezierCombinatorics/NSBezierPath+WFBezierCombinatorics.m"
-                  timestampString = "416975087.575345"
+                  urlString = "file:///Users/deschnl/Documents/Projects/WFBezierPathCombinatorics/NSBezierPath+WFBezierCombinatorics.m"
+                  timestampString = "417310077.244121"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1388"
-                  endingLineNumber = "1388"
-                  offsetFromSymbolStart = "299">
+                  startingLineNumber = "859"
+                  endingLineNumber = "859"
+                  offsetFromSymbolStart = "1318">
                </Location>
                <Location
                   shouldBeEnabled = "No"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
-                  symbolName = "__54-[NSBezierPath(WFBezierCombinatorics) WFSubtractPath:]_block_invoke"
+                  symbolName = "-[NSBezierPath(WFBezierCombinatorics) WFTraversePath:withOptions:pointFinder:parallelIntersectRule:]"
                   moduleName = "WFBezierCombinatoricsTests"
-                  urlString = "file:///Users/deschnl/Documents/Projects/WFBezierCombinatorics/WFBezierCombinatorics/WFBezierCombinatorics/NSBezierPath+WFBezierCombinatorics.m"
-                  timestampString = "416975087.739345"
+                  urlString = "file:///Users/deschnl/Documents/Projects/WFBezierPathCombinatorics/NSBezierPath+WFBezierCombinatorics.m"
+                  timestampString = "417310077.512853"
                   startingColumnNumber = "9223372036854775807"
                   endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "1388"
-                  endingLineNumber = "1388"
-                  offsetFromSymbolStart = "299">
+                  startingLineNumber = "859"
+                  endingLineNumber = "859"
+                  offsetFromSymbolStart = "1318">
                </Location>
             </Locations>
          </BreakpointContent>
@@ -271,12 +257,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
-            timestampString = "416975479.634199"
+            timestampString = "417310608.099934"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1402"
-            endingLineNumber = "1402"
-            landmarkName = "-testBezierParallelOffsetrects"
+            startingLineNumber = "640"
+            endingLineNumber = "640"
+            landmarkName = "-testBezierPathFullEdgeToEdge"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -286,13 +272,75 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
-            timestampString = "416975514.553855"
+            filePath = "NSBezierPath+WFBezierCombinatorics.m"
+            timestampString = "417312005.50563"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1538"
-            endingLineNumber = "1538"
-            landmarkName = "-testBezierParallelRectsWithCongruentSides"
+            startingLineNumber = "1501"
+            endingLineNumber = "1501"
+            landmarkName = "-WFSubtractPath:"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__54-[NSBezierPath(WFBezierCombinatorics) WFSubtractPath:]_block_invoke71"
+                  moduleName = "WFBezierCombinatorics"
+                  urlString = "file:///Users/deschnl/Documents/Projects/WFBezierPathCombinatorics/NSBezierPath+WFBezierCombinatorics.m"
+                  timestampString = "417311467.195086"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1499"
+                  endingLineNumber = "1499"
+                  offsetFromSymbolStart = "144">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__54-[NSBezierPath(WFBezierCombinatorics) WFSubtractPath:]_block_invoke71"
+                  moduleName = "WFBezierCombinatoricsTests"
+                  urlString = "file:///Users/deschnl/Documents/Projects/WFBezierPathCombinatorics/NSBezierPath+WFBezierCombinatorics.m"
+                  timestampString = "417311467.472101"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "1499"
+                  endingLineNumber = "1499"
+                  offsetFromSymbolStart = "144">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
+            timestampString = "417311501.294599"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "516"
+            endingLineNumber = "516"
+            landmarkName = "-testBezierPathCornerToCorner"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "WFBezierCombinatoricsTests/WFBezierCombinatoricsTests.m"
+            timestampString = "417312075.446805"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "678"
+            endingLineNumber = "678"
+            landmarkName = "-testBezierPathFullEdgeToEdgeSubtract"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

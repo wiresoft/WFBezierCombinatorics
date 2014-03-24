@@ -5,36 +5,36 @@
 	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
 	<false/>
 	<key>IDESourceControlProjectIdentifier</key>
-	<string>B6C13D9C-51FF-4580-A93C-BEF030159F24</string>
+	<string>50AB5EA5-CF87-4FDC-8EBC-1BBEA2DE4ADD</string>
 	<key>IDESourceControlProjectName</key>
 	<string>WFBezierCombinatorics</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
-		<key>4329D70C-76E3-43B2-A77A-D0C633CAFE90</key>
-		<string>https://github.com/wiresoft/WFBezierCombinatorics.git</string>
+		<key>C32B77D7-DCCF-4D31-AAEC-958DC225C3B7</key>
+		<string>ssh://wraith.local/git/WFBezierPathCombinatorics.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>WFBezierCombinatorics.xcodeproj/project.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
-		<key>4329D70C-76E3-43B2-A77A-D0C633CAFE90</key>
+		<key>C32B77D7-DCCF-4D31-AAEC-958DC225C3B7</key>
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/wiresoft/WFBezierCombinatorics.git</string>
+	<string>ssh://wraith.local/git/WFBezierPathCombinatorics.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>110</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>4329D70C-76E3-43B2-A77A-D0C633CAFE90</string>
+	<string>C32B77D7-DCCF-4D31-AAEC-958DC225C3B7</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>
 			<key>IDESourceControlWCCIdentifierKey</key>
-			<string>4329D70C-76E3-43B2-A77A-D0C633CAFE90</string>
+			<string>C32B77D7-DCCF-4D31-AAEC-958DC225C3B7</string>
 			<key>IDESourceControlWCCName</key>
-			<string>WFBezierCombinatorics</string>
+			<string>WFBezierPathCombinatorics</string>
 		</dict>
 	</array>
 </dict>

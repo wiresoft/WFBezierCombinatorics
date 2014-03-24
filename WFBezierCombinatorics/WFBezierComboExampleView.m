@@ -25,14 +25,14 @@
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		*/
 		
-		_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(100.0, 100.0, 300.0, 300.0)];
-		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(120.0, 120.0, 260.0, 260.0)] bezierPathByReversingPath]];
+		//_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(100.0, 100.0, 100.0, 100.0)];
+		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(110.0, 110.0, 80.0, 80.0)] bezierPathByReversingPath]];
 		
-		//_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(50.0, 50.0, 300.0, 300.0)];
-		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
-		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
-		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
-		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
+		_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(50.0, 50.0, 300.0, 300.0)];
+		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
+		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
+		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
+		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		
 		
 		/*
