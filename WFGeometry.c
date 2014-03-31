@@ -2,14 +2,13 @@
 //  WFGeometry.c
 //
 //  Created by Noah Desch on 12/27/13.
-//  Copyright (c) 2013 Noah Desch.
+//  Copyright (c) 2014 Noah Desch.
 //
 
 #include <math.h>
 #include <string.h>
 
 #include "WFGeometry.h"
-//#include <CoreGraphics/CGBase.h>
 #include <CoreGraphics/CGGeometry.h>
 
 uint64_t WFGeometryCurveCurveIntersection_Recursive( const CGPoint * curveA,

@@ -3,7 +3,7 @@
 //  WFBezierCombinatorics
 //
 //  Created by Noah Desch on 3/6/14.
-//  Copyright (c) 2014 Wireframe Software. All rights reserved.
+//  Copyright (c) 2014 Noah Desch.
 //
 
 #import "WFBezierComboExampleView.h"
@@ -17,23 +17,22 @@
 	if ( !_pathA) {
 		//_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(50.0, 50.0, 300.0, 300.0)];
 		
-		/*
 		_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(50.0, 50.0, 300.0, 300.0)];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(70.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(220.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(70.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
-		*/
 		
 		//_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(100.0, 100.0, 100.0, 100.0)];
 		//[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(110.0, 110.0, 80.0, 80.0)] bezierPathByReversingPath]];
 		
+		/*
 		_pathA = [NSBezierPath bezierPathWithRect:NSMakeRect(50.0, 50.0, 300.0, 300.0)];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(70.0, 220.0, 110.0, 110.0)] bezierPathByReversingPath]];
 		[_pathA appendBezierPath:[[NSBezierPath bezierPathWithRect:NSMakeRect(220.0, 70.0, 110.0, 110.0)] bezierPathByReversingPath]];
-		
+		*/
 		
 		/*
 		_pathA = [NSBezierPath bezierPath];
@@ -71,7 +70,8 @@
 		*/
 		
 		NSAffineTransform* tfm = [NSAffineTransform transform];
-		[tfm translateXBy:330 yBy:-20];
+		//[tfm translateXBy:330 yBy:-20];
+		[tfm translateXBy:100 yBy:0];
 		_pathB = [tfm transformBezierPath:[self pathA]];
 		
 		[_pathB setLineWidth:2.0];
