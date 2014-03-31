@@ -1429,11 +1429,6 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 			if ( vertices[i].flags & (WFBezierFlag_PointUsed|WFBezierFlag_PointInvalid) ) continue;
 			node = &vertices[i];
 			
-			// TODO: Debugging
-			if ( WFGeometryDistance( node->intersectionPoint, CGPointMake(60.0, 40.0)) < 1.0E-6 ) {
-				NSLog(@"Here");
-			}
-			
 			if ( (node->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
 				WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode(node, vertices, indexedPathA, YES);
 				WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode(node, vertices, indexedPathB, NO);
@@ -1539,11 +1534,6 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		CGFloat ORCoverage;
 		CGFloat ACoverage;
 		
-		// TODO: Debugging
-		if ( WFGeometryDistance( node->intersectionPoint, CGPointMake(60.0, 60.0)) < 1.0E-6 ) {
-			NSLog(@"Here");
-		}
-		
 		if ( nextNodeA != nextNodeB ) {
 			CGPoint testPtA = midPointBetweenNodes( node, nextNodeA, YES );
 			CGPoint testPtB = midPointBetweenNodes( node, nextNodeB, NO );
@@ -1638,79 +1628,188 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 	pointFinder = ^(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBezierIndexChain * indexedPathA, WFBezierIndexChain * indexedPathB, BOOL * isPathA)
 	{
 		WFBezierVertexNode * node = NULL;
-		BOOL freeVertexFound = NO;
 		
 		for ( NSUInteger i = 0; i < vertexCount; i++ ) {
 			if ( vertices[i].flags & (WFBezierFlag_PointUsed|WFBezierFlag_PointInvalid) ) continue;
 			node = &vertices[i];
 			
-			if ( (node->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
-				// new node is an intersection, figure out which path to traverse
-				WFBezierVertexNode * nextNode = nodeOnIndexPathAfterNode(node, vertices, indexedPathA, YES);
-				if ( (nextNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
-					// Next node on pathA is an intersection so it must be valid
-					*isPathA = NO;
-				} else if ( [path WFContainsNode:nextNode] ) {
-					// Next node on pathA is an endpoint and is contained within pathB so it is valid
-					*isPathA = NO;
-				} else {
-					nextNode = nodeOnIndexPathAfterNode(node, vertices, indexedPathB, NO);
-					if ( (nextNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) == (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
-						// Next node on pathB is also an intersection so it must be valid
-						*isPathA = YES;
-					} else if ( [self WFContainsNode:nextNode] ) {
-						// Next node on pathB is and endpoint and is contained in pathA so it is valid
-						*isPathA = YES;
-					} else {
+			if ( WFNodeIsOnBothPaths(node) ) {
+				WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode(node, vertices, indexedPathA, YES);
+				WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode(node, vertices, indexedPathB, NO);
+				
+				if ( (node->flags & WFBezierFlag_ParallelIntersect) ) {
+					CGFloat XORCoverage;
+					CGFloat ANDCoverage;
+					CGFloat ORCoverage;
+					CGFloat ACoverage;
+					[self WFParallelIntersectEncloseureForNode:node
+													  withPath:path
+													  vertices:vertices
+													indexPathA:indexedPathA
+													indexPathB:indexedPathB
+														outXOR:&XORCoverage
+														outAND:&ANDCoverage
+														 outOR:&ORCoverage
+													  outAOnly:&ACoverage];
+					
+					if ( ANDCoverage <= WFGeometryAngularResolution ) {
 						node->flags |= WFBezierFlag_PointUsed;
 						continue;
+					}
+					// Parallel intersect nodes can start on either path, and we can always start on a parallel intersection as long as it encloses a portion of both paths
+					return node;
+				}
+				
+				if ( !WFNodeIsOnBothPaths(nextNodeA) ) {
+					if ( [path WFContainsNode:nextNodeA] ) {
+						*isPathA = NO;
+						return node;
+					}
+				} else {
+					CGPoint p = midPointBetweenNodes(node, nextNodeA, YES);
+					if ( [path containsPoint:p] ) {
+						*isPathA = NO;
+						return node;
 					}
 				}
-			} else {
-				// new node is an endpoint
-				*isPathA = (node->flags & WFBezierFlag_PathA);
-				if ( *isPathA ) {
-					if ( ![path WFContainsNode:node] ) {
-						// intersections only contain vertices that are inside the other shape
-						node->flags |= WFBezierFlag_PointUsed;
-						continue;
+				
+				if ( !WFNodeIsOnBothPaths(nextNodeB) ) {
+					if ( [self WFContainsNode:nextNodeB] ) {
+						*isPathA = YES;
+						return node;
 					}
 				} else {
-					if ( ![self WFContainsNode:node] ) {
-						// intersections only contain vertices that are inside the other shape
-						node->flags |= WFBezierFlag_PointUsed;
-						continue;
+					CGPoint p = midPointBetweenNodes(node, nextNodeB, NO);
+					if ( [self containsPoint:p] ) {
+						*isPathA = YES;
+						return node;
+					}
+				}
+				if ( nextNodeA == nextNodeB && (nextNodeA->flags & WFBezierFlag_ParallelIntersect) ) {
+					if ( node->flags & WFBezierFlag_OriginalEndptA ) {
+						*isPathA = YES;
+					} else {
+						*isPathA = NO;
+					}
+					return node;
+				}
+				
+			} else {
+				// new node is an endpoint
+				CGFloat XORCoverage;
+				CGFloat ANDCoverage;
+				CGFloat ORCoverage;
+				CGFloat ACoverage;
+				
+				*isPathA = (node->flags & WFBezierFlag_PathA);
+				if ( node->flags & WFBezierFlag_Coincident ) {
+					[self WFCoincidentNodeAngularCoverage:node
+												 withPath:path
+												 vertices:vertices
+											  vertexCount:vertexCount
+											   indexPathA:indexedPathA
+											   indexPathB:indexedPathB
+												   outXOR:&XORCoverage
+												   outAND:&ANDCoverage
+													outOR:&ORCoverage
+												 outAOnly:&ACoverage];
+					if ( ANDCoverage > WFGeometryAngularResolution ) return node;
+				} else {
+					if ( *isPathA ) {
+						if ( [path WFContainsNode:node] ) return node;
+					} else {
+						if ( [self WFContainsNode:node] ) return node;
 					}
 				}
 			}
 			
-			freeVertexFound = YES;
-			break;
+			node->flags |= WFBezierFlag_PointUsed;
 		}
-		if ( !freeVertexFound ) return (WFBezierVertexNode *)NULL;
-		return node;
+		return (WFBezierVertexNode *)NULL;
 	};
 	
 	parallelIntersectRules = ^(WFBezierVertexNode* node, WFBezierVertexNode *vertices, NSUInteger vertexCount, WFBezierIndexChain *pathA, WFBezierIndexChain *pathB, BOOL *canUsePathA, BOOL *canUsePathB)
 	{
 		WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode(node, vertices, pathA, YES);
 		WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode(node, vertices, pathB, NO);
+		CGFloat XORCoverage;
+		CGFloat ANDCoverage;
+		CGFloat ORCoverage;
+		CGFloat ACoverage;
 		
 		if ( nextNodeA != nextNodeB ) {
-			//*canUsePathA = *canUsePathA && !parallelIntersectNodeIsEnteringUnion(node, vertices, pathA, pathB, YES);
-			//*canUsePathB = *canUsePathB && !parallelIntersectNodeIsEnteringUnion(node, vertices, pathA, pathB, NO);
+			CGPoint testPtA = midPointBetweenNodes( node, nextNodeA, YES );
+			CGPoint testPtB = midPointBetweenNodes( node, nextNodeB, NO );
 			
 			if ( WFNodeIsOnBothPaths( nextNodeA ) ) {
-				CGPoint testPtA = midPointBetweenNodes( node, nextNodeA, YES );
-				*canUsePathA = *canUsePathA && ![path containsPoint:testPtA];
+				if ( nextNodeA->flags & WFBezierFlag_ParallelIntersect ) {
+					[self WFParallelIntersectEncloseureForNode:nextNodeA
+													  withPath:path
+													  vertices:vertices
+													indexPathA:pathA
+													indexPathB:pathB
+														outXOR:&XORCoverage
+														outAND:&ANDCoverage
+														 outOR:&ORCoverage
+													  outAOnly:&ACoverage];
+					*canUsePathA = *canUsePathA && (ANDCoverage > WFGeometryAngularResolution);
+					if ( nodeOnIndexPathBeforeNode(node, vertices, pathB, NO) == nextNodeA ) {
+						*canUsePathA = NO;
+					}
+				}
+				*canUsePathA = *canUsePathA && [path containsPoint:testPtA];
 			} else {
-				*canUsePathA = *canUsePathA && ![path WFContainsNode:nextNodeA];
+				if ( nextNodeA->flags & WFBezierFlag_Coincident ) {
+					[self WFCoincidentNodeAngularCoverage:nextNodeA
+												 withPath:path
+												 vertices:vertices
+											  vertexCount:vertexCount
+											   indexPathA:pathA
+											   indexPathB:pathB
+												   outXOR:&XORCoverage
+												   outAND:&ANDCoverage
+													outOR:&ORCoverage
+												 outAOnly:&ACoverage];
+					*canUsePathA = *canUsePathA && ( ANDCoverage > WFGeometryAngularResolution );
+					*canUsePathA = *canUsePathA && [path containsPoint:testPtA];
+				} else {
+					*canUsePathA = *canUsePathA && [path WFContainsNode:nextNodeA];
+				}
 			}
 			if ( WFNodeIsOnBothPaths( nextNodeB ) ) {
-				CGPoint testPtB = midPointBetweenNodes( node, nextNodeB, NO );
-				*canUsePathB = *canUsePathB && ![self containsPoint:testPtB];
+				if ( nextNodeB->flags & WFBezierFlag_ParallelIntersect ) {
+					[self WFParallelIntersectEncloseureForNode:nextNodeB
+													  withPath:path
+													  vertices:vertices
+													indexPathA:pathA
+													indexPathB:pathB
+														outXOR:&XORCoverage
+														outAND:&ANDCoverage
+														 outOR:&ORCoverage
+													  outAOnly:&ACoverage];
+					*canUsePathB = *canUsePathB && (ANDCoverage > WFGeometryAngularResolution);
+					if ( nodeOnIndexPathBeforeNode(node, vertices, pathA, YES) == nextNodeB ) {
+						*canUsePathB = NO;
+					}
+				}
+				*canUsePathB = *canUsePathB && [self containsPoint:testPtB];
 			} else {
-				*canUsePathB = *canUsePathB && ![self WFContainsNode:nextNodeB];
+				if ( nextNodeB->flags & WFBezierFlag_Coincident ) {
+					[self WFCoincidentNodeAngularCoverage:nextNodeB
+												 withPath:path
+												 vertices:vertices
+											  vertexCount:vertexCount
+											   indexPathA:pathA
+											   indexPathB:pathB
+												   outXOR:&XORCoverage
+												   outAND:&ANDCoverage
+													outOR:&ORCoverage
+												 outAOnly:&ACoverage];
+					*canUsePathB = *canUsePathB && ( ANDCoverage > WFGeometryAngularResolution );
+					*canUsePathB = *canUsePathB && [self containsPoint:testPtB];
+				} else {
+					*canUsePathB = *canUsePathB && [self WFContainsNode:nextNodeB];
+				}
 			}
 		}
 	};
