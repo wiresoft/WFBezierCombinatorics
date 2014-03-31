@@ -568,6 +568,7 @@ bool WFGeometryVectorsCoincident( CGPoint lineVector, CGPoint v1, CGPoint v2 )
 	return false;
 }
 
+
 bool WFGeometryVectorsCoincident4( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v4 )
 {
 	WFGeometryNormalizeVector( &v1 );
@@ -586,6 +587,24 @@ bool WFGeometryVectorsCoincident4( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v
 	return false;
 }
 
+bool WFGeometryVectorsAdjacent4( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v4 )
+{
+	WFGeometryNormalizeVector( &v1 );
+	WFGeometryNormalizeVector( &v2 );
+	WFGeometryNormalizeVector( &v3 );
+	WFGeometryNormalizeVector( &v4 );
+	
+	// v1 to v3
+	if ( (v1.x*v3.x + v1.y*v3.y) >= 1.0-WFGeometryAngularResolution ) return true;
+	// v1 to v4
+	if ( (v1.x*v4.x + v1.y*v4.y) >= 1.0-WFGeometryAngularResolution ) return true;
+	// v2 to v3
+	if ( (v2.x*v3.x + v2.y*v3.y) >= 1.0-WFGeometryAngularResolution ) return true;
+	// v2 to v4
+	if ( (v2.x*v4.x + v2.y*v4.y) >= 1.0-WFGeometryAngularResolution ) return true;
+	
+	return false;
+}
 
 bool WFGeometryVectorsCrossCorner( CGPoint v1, CGPoint v2, CGPoint v3, CGPoint v4 )
 {
