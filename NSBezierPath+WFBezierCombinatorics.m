@@ -1301,6 +1301,20 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 					}
 					return node;
 				}
+				if ( node->elementA == NSCurveToBezierPathElement && WFNodeIsOnBothPaths(nextNodeA) && nextNodeA->elementA == NSCurveToBezierPathElement  ) {
+					CGPoint p = midPointBetweenNodes(node, nextNodeA, YES);
+					if ( ![path containsPoint:p] ) {
+						*isPathA = NO;
+						return node;
+					}
+				}
+				if ( node->elementB == NSCurveToBezierPathElement && WFNodeIsOnBothPaths(nextNodeB) && nextNodeB->elementB == NSCurveToBezierPathElement  ) {
+					CGPoint p = midPointBetweenNodes(node, nextNodeA, NO);
+					if ( ![self containsPoint:p] ) {
+						*isPathA = YES;
+						return node;
+					}
+				}
 				
 			} else {
 				// new node is an endpoint
