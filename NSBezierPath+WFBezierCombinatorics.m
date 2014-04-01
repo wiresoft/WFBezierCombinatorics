@@ -877,11 +877,6 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		BOOL coincidentBoundaries = NO;
 		BOOL adjacentBoundaries = NO;
 		
-		// TODO: Debugging
-		if ( WFGeometryDistance( node->intersectionPoint, CGPointMake(60.0, 40.0)) < 1.0E-6 ) {
-			NSLog(@"Here");
-		}
-		
 		if ( pathAOnEndpt ) {
 			originalA = originalVertexOverlappingNode(node, vertices, indexedPathA, YES);
 			if ( originalA ) {
@@ -1106,11 +1101,6 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 			node = findNextStartingPoint( vertices, vertexCount, indexedPathA, indexedPathB, &isPathA );
 			if ( !node ) break;
 			pathIndex = (isPathA)?node->pathAIndex:node->pathBIndex;
-		}
-		
-		// TODO: Debugging
-		if ( WFGeometryDistance( node->intersectionPoint, CGPointMake(60.0, 40.0)) < 1.0E-6 ) {
-			NSLog(@"Here");
 		}
 		
 		//
