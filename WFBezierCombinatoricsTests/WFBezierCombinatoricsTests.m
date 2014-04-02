@@ -2650,6 +2650,90 @@
 	result = [a WFIntersectWithPath:b];
 }
 
+
+- (void)testBezierCurveSinglePointTouch1
+{
+	NSBezierPathElement element;
+	CGPoint points[3];
+	NSBezierPath * a;
+	NSBezierPath * b;
+	NSBezierPath * result;
+	
+	a = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect( 0.0, 0.0, 100.0, 100.0 )];
+	[a appendBezierPath:[[NSBezierPath bezierPathWithOvalInRect:NSMakeRect(20.0, 20.0, 60.0, 60.0)] bezierPathByReversingPath]];
+	b = [NSBezierPath bezierPathWithRect:NSMakeRect( 80.0, 0.0, 100.0, 100.0 )];
+	result = [a WFUnionWithPath:b];
+	
+	XCTAssertTrue( [result elementCount] == 17, @"Incorrect element count" );
+	element = [result elementAtIndex:0 associatedPoints:points];
+	XCTAssertTrue( element == NSMoveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(14.644661, 85.355339)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:1 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(-4.881554, 65.829124)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(-4.881554, 34.170876)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(14.644661, 14.644661)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:2 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(32.472249, -3.182927)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(60.412899, -4.733786)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(80.000000, 9.992082)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:3 associatedPoints:points];
+	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(80.000000, 0.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:4 associatedPoints:points];
+	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(180.000000, 0.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:5 associatedPoints:points];
+	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(180.000000, 100.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:6 associatedPoints:points];
+	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(80.000000, 100.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:7 associatedPoints:points];
+	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(80.000000, 90.007918)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:8 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(60.412899, 104.733786)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(32.472249, 103.182927)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(14.644661, 85.355339)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:9 associatedPoints:points];
+	XCTAssertTrue( element == NSMoveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(71.213203, 28.786797)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:10 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(59.497475, 17.071068)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(40.502525, 17.071068)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(28.786797, 28.786797)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:11 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(17.071068, 40.502525)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(17.071068, 59.497475)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(28.786797, 71.213203)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:12 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(40.502525, 82.928932)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(59.497475, 82.928932)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(71.213203, 71.213203)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:13 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(77.070978, 65.355428)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(79.999911, 57.677904)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(80.000000, 50.000351)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:14 associatedPoints:points];
+	XCTAssertTrue( element == NSLineToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(80.000000, 49.999649)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:15 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(79.999911, 42.322096)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(77.070978, 34.644572)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(71.213203, 28.786797)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:16 associatedPoints:points];
+	XCTAssertTrue( element == NSMoveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(80.000000, 0.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+}
+
 - (void)testCurveZeroFinding
 {
 	CGPoint curve[4];

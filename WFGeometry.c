@@ -156,6 +156,17 @@ uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues 
 	uint16_t rootCount = 0;
 	CGPoint derivative[3];
 	const CGFloat step = 0.01;
+	bool initialSolution = false;
+	
+	bool (^solutionIsUnique) (CGFloat t) = ^ bool (CGFloat t) {
+		CGPoint q = WFGeometryEvaluateCubicCurve( t, curve );
+		for ( uint64_t i = 0; i < rootCount; i++ ) {
+			CGPoint p = WFGeometryEvaluateCubicCurve( outTValues[i], curve );
+			if ( WFGeometryDistance(p, q) < WFGeometryPointResolution ) return false;
+		}
+		return true;
+	};
+	
 	
 	WFGeometryBezierDerivative( curve, derivative );
 	
@@ -177,23 +188,55 @@ uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues 
 			p = WFGeometryEvaluateCubicCurve( z, curve );
 		}
 		
-		// make sure we haven't already found this solution
-		if ( fabs(p.y) <= WFGeometryPointResolution/4 && z >= 0.0 && z <= 1.0 ) {
-			bool rootAlreadyFound = false;
-			for ( uint64_t i = 0; i < rootCount; i++ ) {
-				if ( fabs(outTValues[i]-z) < WFGeometryParametricResolution ) {
-					rootAlreadyFound = true;
-					break;
-				}
-			}
-			if ( !rootAlreadyFound ) {
-				outTValues[rootCount] = z;
-				rootCount++;
-			}
-			if ( rootCount == 3 ) break;
+		if ( fabs(p.y) <= WFGeometryPointResolution/4 ) {
+			t = z;
+			initialSolution = true;
+			break;
 		}
 		
 		t += step;
+	}
+	
+	if ( initialSolution ) {
+		CGFloat a,b,c,d;
+		
+		// check if initial solution is a valid parameter on the bezier curve
+		if ( t >= 0.0 && t <= 1.0 ) {
+			outTValues[rootCount] = t;
+			rootCount++;
+		}
+		
+		// synthetic division to factor out the solution we found with Newton-Raphson
+		// so we end up with a quadratic polynomial in a,b,c
+		a = curve[3].y - 3.0*curve[2].y + 3.0*curve[1].y - curve[0].y;
+		b = 3.0*curve[2].y - 6.0*curve[1].y + 3.0*curve[0].y;
+		c = 3.0*curve[1].y - 3.0*curve[0].y;
+		d = curve[0].y;
+		b += t*a;
+		c += t*b;
+		
+		if ( fabs(a) < 1.0E-10 ) {
+			// remaining polynomial is a line
+			t = -c/b;
+			if ( t >= 0.0 && t <= 1.0 && solutionIsUnique(t) ) {
+				outTValues[rootCount] = t;
+				rootCount++;
+			}
+		} else {
+			CGFloat root = b*b-4.0*a*c;
+			if ( root < 0.0 ) return rootCount;
+			
+			t = (-b + sqrt(root))/(2.0*a);
+			if ( t >= 0.0 && t <= 1.0 && solutionIsUnique(t) ) {
+				outTValues[rootCount] = t;
+				rootCount++;
+			}
+			t = (-b - sqrt(root))/(2.0*a);
+			if ( t >= 0.0 && t <= 1.0 && solutionIsUnique(t) ) {
+				outTValues[rootCount] = t;
+				rootCount++;
+			}
+		}
 	}
 	
 	return rootCount;
