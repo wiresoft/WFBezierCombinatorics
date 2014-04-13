@@ -9,6 +9,14 @@
 #import "WFBezierComboExampleView.h"
 #import "NSBezierPath+WFBezierCombinatorics.h"
 
+
+// Uncomment to snap mouse coordinates to integral values. This
+// helps create pathological intersection cases to help hunt for bugs
+//
+//#define SNAP_MOUSE_COORDS
+//
+
+
 @implementation WFBezierComboExampleView
 
 
@@ -69,7 +77,6 @@
 		
 		/*
 		NSAffineTransform* tfm = [NSAffineTransform transform];
-		//[tfm translateXBy:330 yBy:-20];
 		[tfm translateXBy:100 yBy:0];
 		_pathB = [tfm transformBezierPath:[self pathA]];
 		*/
@@ -133,13 +140,13 @@
  
 	// "snap" mousepoint handling so that exact alignment of paths is easy to produce
 	// Use these to hunt for edge cases by dragging shapes around.
-	/*
-	CGFloat rx, ry;
-	rx = fmod( mousePoint.x, 10.0 );
-	ry = fmod( mousePoint.y, 10.0 );
-	mousePoint.x -= rx;
-	mousePoint.y -= ry;
-	*/
+	#ifdef SNAP_MOUSE_COORDS
+		CGFloat rx, ry;
+		rx = fmod( mousePoint.x, 10.0 );
+		ry = fmod( mousePoint.y, 10.0 );
+		mousePoint.x -= rx;
+		mousePoint.y -= ry;
+	#endif
 	
 	[self setTrackingPoint:mousePoint];
 	
@@ -157,13 +164,13 @@
 	
 	// "snap" mousepoint handling so that exact alignment of paths is easy to produce
 	// Use these to hunt for find edge by dragging shapes around.
-	/*
-	CGFloat rx, ry;
-	rx = fmod( mousePoint.x, 10.0 );
-	ry = fmod( mousePoint.y, 10.0 );
-	mousePoint.x -= rx;
-	mousePoint.y -= ry;
-	*/
+	#ifdef SNAP_MOUSE_COORDS
+		CGFloat rx, ry;
+		rx = fmod( mousePoint.x, 10.0 );
+		ry = fmod( mousePoint.y, 10.0 );
+		mousePoint.x -= rx;
+		mousePoint.y -= ry;
+	#endif
 	
 	NSAffineTransform * t = [[NSAffineTransform alloc] init];
 	[t translateXBy:mousePoint.x - [self trackingPoint].x

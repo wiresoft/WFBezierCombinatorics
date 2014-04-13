@@ -9,7 +9,6 @@
 #include <string.h>
 
 #include "WFGeometry.h"
-#include <CoreGraphics/CGGeometry.h>
 
 uint64_t WFGeometryCurveCurveIntersection_Recursive( const CGPoint * curveA,
 													 const CGPoint * curveB,
@@ -157,6 +156,19 @@ uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues 
 	CGPoint derivative[3];
 	const CGFloat step = 0.01;
 	bool initialSolution = false;
+	
+	if ( signbit(curve[0].y) == signbit(curve[1].y) &&
+		 signbit(curve[1].y) == signbit(curve[2].y) &&
+		 signbit(curve[2].y) == signbit(curve[3].y) ) {
+		// convex hull of control points does not cross y axis
+		return 0;
+	}
+	
+	CGRect bounds = CGRectInset( WFGeometryCubicCurveBounds(curve), 0, WFGeometryPointResolution/4);
+	if ( signbit(bounds.origin.y) == signbit(bounds.origin.y+bounds.size.height) ) {
+		// bounds of curve does not cross y axis
+		return 0;
+	}
 	
 	bool (^solutionIsUnique) (CGFloat t) = ^ bool (CGFloat t) {
 		CGPoint q = WFGeometryEvaluateCubicCurve( t, curve );
@@ -511,9 +523,9 @@ uint64_t WFGeometryLineCurveIntersection( CGPoint pt1, CGPoint pt2, const CGPoin
 	}
 	
 	// translate and rotate the line to the x axis
-	pt2.x -= pt1.x;
-	pt2.y -= pt1.y;
-	CGFloat axisLinePt = pt2.x*rcos - pt2.y*rsin;
+	//pt2.x -= pt1.x;
+	//pt2.y -= pt1.y;
+	CGFloat axisLinePt = (pt2.x-pt1.x)*rcos - (pt2.y-pt1.y)*rsin;
 	CGFloat tempTArray[3];
 	
 	// find zeros of the curve
@@ -526,6 +538,57 @@ uint64_t WFGeometryLineCurveIntersection( CGPoint pt1, CGPoint pt2, const CGPoin
 		if ( outT1Array[hits] >= 0.0 && outT1Array[hits] <= 1.0 ) {
 			outT2Array[hits] = tempTArray[i];
 			hits++;
+		}
+	}
+	
+	// clamp intersections to endpoints if the root finder did not quite get there
+	CGFloat distance0 = WFGeometryDistanceFromPointToLine( curve[0], pt1, pt2 );
+	if ( distance0 < WFGeometryPointResolution/4.0 ) {
+		int64_t closestIndex = -1;
+		CGFloat closestParam = WFGeometryPointResolution*2.0;
+		if ( hits ) {
+			for ( uint64_t i = 0; i < hits; i++ ) {
+				if ( outT2Array[i] < closestParam ) {
+					closestParam = outT2Array[i];
+					closestIndex = i;
+				}
+			}
+			if ( closestIndex == -1 && hits < 3 ) {
+				closestIndex = hits;
+				hits++;
+			}
+		} else {
+			closestIndex = 0;
+			hits++;
+		}
+		if ( closestIndex >= 0 ) {
+			outT2Array[closestIndex] = 0.0;
+			outT1Array[closestIndex] = tempCurve[0].x/axisLinePt;
+		}
+	}
+	
+	CGFloat distance1 = WFGeometryDistanceFromPointToLine( curve[3], pt1, pt2 );
+	if ( distance1 < WFGeometryPointResolution/4.0 ) {
+		int64_t closestIndex = -1;
+		CGFloat closestParam = 1.0-WFGeometryPointResolution*2.0;
+		if ( hits ) {
+			for ( uint64_t i = 0; i < hits; i++ ) {
+				if ( outT2Array[i] > closestParam ) {
+					closestParam = outT2Array[i];
+					closestIndex = i;
+				}
+			}
+			if ( closestIndex == -1 && hits < 3 ) {
+				closestIndex = hits;
+				hits++;
+			}
+		} else {
+			closestIndex = 0;
+			hits++;
+		}
+		if ( closestIndex >= 0 ) {
+			outT2Array[closestIndex] = 1.0;
+			outT1Array[closestIndex] = tempCurve[3].x/axisLinePt;
 		}
 	}
 	

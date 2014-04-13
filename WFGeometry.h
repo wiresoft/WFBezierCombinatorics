@@ -59,7 +59,7 @@ CGFloat WFGeometryDeterminant3x3( CGFloat ** matrix );
 void WFGeometryBezierDerivative( const CGPoint * input, CGPoint * output );
 
 
-/** Computes the derivate of a bezier curve (which is also a bezier curve). A curve's derivative is one order lower than the original curve so in this case the output will be a quadratic curve.
+/** Computes the derivate of a bezier curve (which is also a bezier curve). A curve's derivative is one order lower than the original curve so in this case the output will be a line.
  @param input The input quadratic bezier curve. Must contain 3 points.
  @param output The output bezier curve. Must contain space for at least 2 points.
  */
