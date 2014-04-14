@@ -143,7 +143,10 @@ CGPoint vectorLeavingNodeForPreviousNode( WFBezierVertexNode * node, WFBezierVer
 		default: {
 			WFGeometryBezierDerivative( (isPathA)?node->controlPointsA:node->controlPointsB, derivative );
 			pathT = (isPathA)?(node->pathA_t-floor(node->pathA_t)):(node->pathB_t-floor(node->pathB_t));
-			return WFGeometryEvaluateQuadraticCurve( pathT, derivative );
+			CGPoint vec = WFGeometryEvaluateQuadraticCurve( pathT, derivative );
+			vec.x *= -1.0;
+			vec.y *= -1.0;
+			return vec;
 		}
 	}
 }
@@ -997,11 +1000,11 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		if ( pathAOnEndpt && pathBOnEndpt ) {
 			crossesBoundary = WFGeometryVectorsCrossCorner( testVec1A, testVec2A, testVec1B, testVec2B );
 			coincidentBoundaries |= (originalA && originalB);
-			if ( !crossesBoundary && WFNodeIsOnBothPaths(nextNodeA) && !originalVertexOverlappingNode(nextNodeA, vertices, indexedPathA, YES) ) {
+			if ( nextNodeA && !crossesBoundary && WFNodeIsOnBothPaths(nextNodeA) && !originalVertexOverlappingNode(nextNodeA, vertices, indexedPathA, YES) ) {
 				CGPoint testPt = midPointBetweenNodes( node, nextNodeA, YES );
 				crossesBoundary |= [path containsPoint:testPt];
 			}
-			if ( !crossesBoundary && WFNodeIsOnBothPaths(nextNodeB) && !originalVertexOverlappingNode(nextNodeB, vertices, indexedPathB, NO) ) {
+			if ( nextNodeB && !crossesBoundary && WFNodeIsOnBothPaths(nextNodeB) && !originalVertexOverlappingNode(nextNodeB, vertices, indexedPathB, NO) ) {
 				CGPoint testPt = midPointBetweenNodes( node, nextNodeB, NO );
 				crossesBoundary |= [self containsPoint:testPt];
 			}
@@ -1210,15 +1213,21 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 							} else {
 								splitT -= floor(previousSplitT);
 							}
-							WFGeometrySplitCubicCurve(splitT, originalCurve, curveSplitPrevious, curveSplitNext);
-							if ( (previousNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
-								// previous node is an endpoint, so we can use the split directly
-								[result curveToPoint:curveSplitPrevious[3] controlPoint1:curveSplitPrevious[1] controlPoint2:curveSplitPrevious[2]];
+							if ( splitT < WFGeometryParametricResolution &&
+								 WFGeometryDistance(originalCurve[0], WFGeometryEvaluateCubicCurve(splitT, originalCurve)) < WFGeometryPointResolution ) {
+								// Special case for point at the very beginning of the curve which would result in a flattened curve segment trying to approximate a straight line. In this case it is more correct to add a lineTo element.
+								[result lineToPoint:originalCurve[0]];
 							} else {
-								// previous node is also an intersection so we have to split the curve again
-								splitT = WFGeometryParameterForCubicCurvePoint(curveSplitPrevious, previousNode->intersectionPoint);
-								WFGeometrySplitCubicCurve(splitT, curveSplitPrevious, curveSplitNext, curveSplitFinal);
-								[result curveToPoint:curveSplitFinal[3] controlPoint1:curveSplitFinal[1] controlPoint2:curveSplitFinal[2]];
+								WFGeometrySplitCubicCurve(splitT, originalCurve, curveSplitPrevious, curveSplitNext);
+								if ( (previousNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
+									// previous node is an endpoint, so we can use the split directly
+									[result curveToPoint:curveSplitPrevious[3] controlPoint1:curveSplitPrevious[1] controlPoint2:curveSplitPrevious[2]];
+								} else {
+									// previous node is also an intersection so we have to split the curve again
+									splitT = WFGeometryParameterForCubicCurvePoint(curveSplitPrevious, previousNode->intersectionPoint);
+									WFGeometrySplitCubicCurve(splitT, curveSplitPrevious, curveSplitNext, curveSplitFinal);
+									[result curveToPoint:curveSplitFinal[3] controlPoint1:curveSplitFinal[1] controlPoint2:curveSplitFinal[2]];
+								}
 							}
 							
 						} else {
@@ -1292,6 +1301,14 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode(node, vertices, indexedPathB, NO);
 				
 				if ( node->flags & WFBezierFlag_ParallelIntersect ) {
+					if ( node->elementA == NSCurveToBezierPathElement ) {
+						*isPathA = NO;
+						return node;
+					}
+					if ( node->elementB == NSCurveToBezierPathElement ) {
+						*isPathA = YES;
+						return node;
+					}
 					CGFloat XORCoverage;
 					CGFloat ANDCoverage;
 					CGFloat ORCoverage;
@@ -1397,17 +1414,19 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		if ( nextNodeA != nextNodeB ) {
 			if ( WFNodeIsOnBothPaths( nextNodeA ) ) {
 				if ( nextNodeA->flags & WFBezierFlag_ParallelIntersect ) {
-					[self WFParallelIntersectEncloseureForNode:nextNodeA
-													  withPath:path
-													  vertices:vertices
-													indexPathA:pathA
-													indexPathB:pathB
-														outXOR:&XORCoverage
-														outAND:&ANDCoverage
-														 outOR:&ORCoverage
-													  outAOnly:&ACoverage];
-					
-					*canUsePathA = *canUsePathA && XORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
+					if ( nextNodeA->elementA != NSCurveToBezierPathElement ) {
+						[self WFParallelIntersectEncloseureForNode:nextNodeA
+														  withPath:path
+														  vertices:vertices
+														indexPathA:pathA
+														indexPathB:pathB
+															outXOR:&XORCoverage
+															outAND:&ANDCoverage
+															 outOR:&ORCoverage
+														  outAOnly:&ACoverage];
+						
+						*canUsePathA = *canUsePathA && XORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
+					}
 				}
 				CGPoint testPtA = midPointBetweenNodes( node, nextNodeA, YES );
 				*canUsePathA = *canUsePathA && ![path containsPoint:testPtA];
@@ -1421,17 +1440,19 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 			}
 			if ( WFNodeIsOnBothPaths( nextNodeB ) ) {
 				if ( nextNodeB->flags & WFBezierFlag_ParallelIntersect ) {
-					[self WFParallelIntersectEncloseureForNode:nextNodeB
-													  withPath:path
-													  vertices:vertices
-													indexPathA:pathA
-													indexPathB:pathB
-														outXOR:&XORCoverage
-														outAND:&ANDCoverage
-														 outOR:&ORCoverage
-													  outAOnly:&ACoverage];
-					
-					*canUsePathB = *canUsePathB && XORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
+					if ( nextNodeB->elementB != NSCurveToBezierPathElement ) {
+						[self WFParallelIntersectEncloseureForNode:nextNodeB
+														  withPath:path
+														  vertices:vertices
+														indexPathA:pathA
+														indexPathB:pathB
+															outXOR:&XORCoverage
+															outAND:&ANDCoverage
+															 outOR:&ORCoverage
+														  outAOnly:&ACoverage];
+						
+						*canUsePathB = *canUsePathB && XORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
+					}
 				}
 				CGPoint testPtB = midPointBetweenNodes( node, nextNodeB, NO );
 				*canUsePathB = *canUsePathB && ![self containsPoint:testPtB];

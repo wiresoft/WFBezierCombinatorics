@@ -523,10 +523,11 @@ uint64_t WFGeometryLineCurveIntersection( CGPoint pt1, CGPoint pt2, const CGPoin
 	}
 	
 	// translate and rotate the line to the x axis
-	//pt2.x -= pt1.x;
-	//pt2.y -= pt1.y;
 	CGFloat axisLinePt = (pt2.x-pt1.x)*rcos - (pt2.y-pt1.y)*rsin;
+	if ( axisLinePt < WFGeometryPointResolution ) return 0;
 	CGFloat tempTArray[3];
+	
+	
 	
 	// find zeros of the curve
 	uint64_t tempHits = WFGeometryFindRootsOfCubicCurve( tempCurve, tempTArray );
@@ -597,6 +598,28 @@ uint64_t WFGeometryLineCurveIntersection( CGPoint pt1, CGPoint pt2, const CGPoin
 
 uint64_t WFGeometryCurveCurveIntersection( const CGPoint * curveA, const CGPoint * curveB, CGFloat * outT1Array, CGFloat * outT2Array )
 {
+	// Special case for overlapping curves results in intersections at the endpoints
+	if ( WFGeometryDistance(curveA[0], curveB[0]) < WFGeometryPointResolution &&
+		 WFGeometryDistance(curveA[1], curveB[1]) < WFGeometryPointResolution &&
+		 WFGeometryDistance(curveA[2], curveB[2]) < WFGeometryPointResolution &&
+		 WFGeometryDistance(curveA[3], curveB[3]) < WFGeometryPointResolution ) {
+		outT1Array[0] = 0.0;
+		outT2Array[0] = 0.0;
+		outT1Array[1] = 1.0;
+		outT2Array[1] = 1.0;
+		return 2;
+	}
+	if ( WFGeometryDistance(curveA[0], curveB[3]) < WFGeometryPointResolution &&
+		 WFGeometryDistance(curveA[1], curveB[2]) < WFGeometryPointResolution &&
+		 WFGeometryDistance(curveA[2], curveB[1]) < WFGeometryPointResolution &&
+		 WFGeometryDistance(curveA[3], curveB[0]) < WFGeometryPointResolution ) {
+		outT1Array[0] = 0.0;
+		outT2Array[0] = 1.0;
+		outT1Array[1] = 1.0;
+		outT2Array[1] = 0.0;
+		return 2;
+	}
+	
 	return WFGeometryCurveCurveIntersection_Recursive( curveA, curveB, outT1Array, outT2Array, 0.5, 0.5, 1, 0 );
 }
 
