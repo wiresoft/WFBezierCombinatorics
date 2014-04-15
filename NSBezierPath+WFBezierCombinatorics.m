@@ -1294,7 +1294,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		for ( NSUInteger i = 0; i < vertexCount; i++ ) {
 			if ( vertices[i].flags & (WFBezierFlag_PointUsed|WFBezierFlag_PointInvalid) ) continue;
 			WFBezierVertexNode * node = &vertices[i];
-			
+						
 			if ( WFNodeIsOnBothPaths(node) ) {
 				// new node is an intersection, figure out which path to traverse
 				WFBezierVertexNode * nextNodeA = nodeOnIndexPathAfterNode(node, vertices, indexedPathA, YES);
@@ -1322,7 +1322,8 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 														outAND:&ANDCoverage
 														 outOR:&ORCoverage
 													  outAOnly:&ACoverage];
-					if ( XORCoverage >= (2.0*M_PI-WFGeometryAngularResolution) ) {
+					//if ( XORCoverage >= (2.0*M_PI-WFGeometryAngularResolution) ) {
+					if ( ORCoverage >= (2.0*M_PI-WFGeometryAngularResolution) ) {
 						node->flags |= WFBezierFlag_PointUsed;
 						continue;
 					}
@@ -1360,7 +1361,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 					}
 				}
 				if ( node->elementB == NSCurveToBezierPathElement && WFNodeIsOnBothPaths(nextNodeB) && nextNodeB->elementB == NSCurveToBezierPathElement  ) {
-					CGPoint p = midPointBetweenNodes(node, nextNodeA, NO);
+					CGPoint p = midPointBetweenNodes(node, nextNodeB, NO);
 					if ( ![self containsPoint:p] ) {
 						*isPathA = YES;
 						return node;
@@ -1425,7 +1426,8 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 															 outOR:&ORCoverage
 														  outAOnly:&ACoverage];
 						
-						*canUsePathA = *canUsePathA && XORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
+						//*canUsePathA = *canUsePathA && XORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
+						*canUsePathA = *canUsePathA && ORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
 					}
 				}
 				CGPoint testPtA = midPointBetweenNodes( node, nextNodeA, YES );
@@ -1451,7 +1453,8 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 															 outOR:&ORCoverage
 														  outAOnly:&ACoverage];
 						
-						*canUsePathB = *canUsePathB && XORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
+						//*canUsePathB = *canUsePathB && XORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
+						*canUsePathB = *canUsePathB && ORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
 					}
 				}
 				CGPoint testPtB = midPointBetweenNodes( node, nextNodeB, NO );
