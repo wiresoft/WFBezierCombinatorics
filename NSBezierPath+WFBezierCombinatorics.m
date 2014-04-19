@@ -1301,14 +1301,6 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				WFBezierVertexNode * nextNodeB = nodeOnIndexPathAfterNode(node, vertices, indexedPathB, NO);
 				
 				if ( node->flags & WFBezierFlag_ParallelIntersect ) {
-					if ( node->elementA == NSCurveToBezierPathElement ) {
-						*isPathA = NO;
-						return node;
-					}
-					if ( node->elementB == NSCurveToBezierPathElement ) {
-						*isPathA = YES;
-						return node;
-					}
 					CGFloat XORCoverage;
 					CGFloat ANDCoverage;
 					CGFloat ORCoverage;
@@ -1322,7 +1314,6 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 														outAND:&ANDCoverage
 														 outOR:&ORCoverage
 													  outAOnly:&ACoverage];
-					//if ( XORCoverage >= (2.0*M_PI-WFGeometryAngularResolution) ) {
 					if ( ORCoverage >= (2.0*M_PI-WFGeometryAngularResolution) ) {
 						node->flags |= WFBezierFlag_PointUsed;
 						continue;
@@ -1415,20 +1406,16 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		if ( nextNodeA != nextNodeB ) {
 			if ( WFNodeIsOnBothPaths( nextNodeA ) ) {
 				if ( nextNodeA->flags & WFBezierFlag_ParallelIntersect ) {
-					if ( nextNodeA->elementA != NSCurveToBezierPathElement ) {
-						[self WFParallelIntersectEncloseureForNode:nextNodeA
-														  withPath:path
-														  vertices:vertices
-														indexPathA:pathA
-														indexPathB:pathB
-															outXOR:&XORCoverage
-															outAND:&ANDCoverage
-															 outOR:&ORCoverage
-														  outAOnly:&ACoverage];
-						
-						//*canUsePathA = *canUsePathA && XORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
-						*canUsePathA = *canUsePathA && ORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
-					}
+					[self WFParallelIntersectEncloseureForNode:nextNodeA
+													  withPath:path
+													  vertices:vertices
+													indexPathA:pathA
+													indexPathB:pathB
+														outXOR:&XORCoverage
+														outAND:&ANDCoverage
+														 outOR:&ORCoverage
+													  outAOnly:&ACoverage];
+					*canUsePathA = *canUsePathA && ORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
 				}
 				CGPoint testPtA = midPointBetweenNodes( node, nextNodeA, YES );
 				*canUsePathA = *canUsePathA && ![path containsPoint:testPtA];
@@ -1442,20 +1429,16 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 			}
 			if ( WFNodeIsOnBothPaths( nextNodeB ) ) {
 				if ( nextNodeB->flags & WFBezierFlag_ParallelIntersect ) {
-					if ( nextNodeB->elementB != NSCurveToBezierPathElement ) {
-						[self WFParallelIntersectEncloseureForNode:nextNodeB
-														  withPath:path
-														  vertices:vertices
-														indexPathA:pathA
-														indexPathB:pathB
-															outXOR:&XORCoverage
-															outAND:&ANDCoverage
-															 outOR:&ORCoverage
-														  outAOnly:&ACoverage];
-						
-						//*canUsePathB = *canUsePathB && XORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
-						*canUsePathB = *canUsePathB && ORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
-					}
+					[self WFParallelIntersectEncloseureForNode:nextNodeB
+													  withPath:path
+													  vertices:vertices
+													indexPathA:pathA
+													indexPathB:pathB
+														outXOR:&XORCoverage
+														outAND:&ANDCoverage
+														 outOR:&ORCoverage
+													  outAOnly:&ACoverage];
+					*canUsePathB = *canUsePathB && ORCoverage < (2.0*M_PI-WFGeometryAngularResolution);
 				}
 				CGPoint testPtB = midPointBetweenNodes( node, nextNodeB, NO );
 				*canUsePathB = *canUsePathB && ![self containsPoint:testPtB];
@@ -1466,6 +1449,15 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				} else {
 					*canUsePathB = *canUsePathB && ![self WFContainsNode:nextNodeB];
 				}
+			}
+		}
+		
+		if ( *canUsePathA && *canUsePathB ) {
+			// if both paths are traversable, prioritize the curved path
+			if ( nextNodeA->elementA == NSCurveToBezierPathElement && nextNodeB->elementB != NSCurveToBezierPathElement ) {
+				*canUsePathB = NO;
+			} else if ( nextNodeA->elementA != NSCurveToBezierPathElement && nextNodeB->elementB == NSCurveToBezierPathElement ) {
+				*canUsePathA = NO;
 			}
 		}
 	};
@@ -1671,6 +1663,15 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				}
 			}
 		}
+		
+		if ( *canUsePathA && *canUsePathB ) {
+			// if both paths are traversable, prioritize the curved path
+			if ( nextNodeA->elementA == NSCurveToBezierPathElement && nextNodeB->elementB != NSCurveToBezierPathElement ) {
+				*canUsePathB = NO;
+			} else if ( nextNodeA->elementA != NSCurveToBezierPathElement && nextNodeB->elementB == NSCurveToBezierPathElement ) {
+				*canUsePathA = NO;
+			}
+		}
 	};
 	
 	NSBezierPath * result = [self WFTraversePath:[path bezierPathByReversingPath]
@@ -1872,6 +1873,15 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				} else {
 					*canUsePathB = *canUsePathB && [self WFContainsNode:nextNodeB];
 				}
+			}
+		}
+		
+		if ( *canUsePathA && *canUsePathB ) {
+			// if both paths are traversable, prioritize the curved path
+			if ( nextNodeA->elementA == NSCurveToBezierPathElement && nextNodeB->elementB != NSCurveToBezierPathElement ) {
+				*canUsePathB = NO;
+			} else if ( nextNodeA->elementA != NSCurveToBezierPathElement && nextNodeB->elementB == NSCurveToBezierPathElement ) {
+				*canUsePathA = NO;
 			}
 		}
 	};
