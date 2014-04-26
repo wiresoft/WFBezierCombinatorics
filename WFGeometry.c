@@ -7,7 +7,6 @@
 
 #include <math.h>
 #include <string.h>
-
 #include "WFGeometry.h"
 
 uint64_t WFGeometryCurveCurveIntersection_Recursive( const CGPoint * curveA,
@@ -17,7 +16,8 @@ uint64_t WFGeometryCurveCurveIntersection_Recursive( const CGPoint * curveA,
 													 CGFloat tA,
 													 CGFloat tB,
 													 uint64_t depth,
-													 uint64_t resultCount );
+													 uint64_t resultCount,
+													 bool *outPossiblyOverlapping );
 
 
 
@@ -132,7 +132,7 @@ void WFGeometrySplitCubicCurve( CGFloat t, const CGPoint * curve, CGPoint * outC
 	outCurve2[3] = curve[3];
 }
 
-CGFloat WFGeometryParameterForCubicCurvePoint( const CGPoint * curve, CGPoint point )
+bool WFGeometryParameterForCubicCurvePoint( const CGPoint * curve, CGPoint point, CGFloat * outParameter )
 {
 	CGPoint shiftedCurve[4];
 	CGFloat result[3];
@@ -141,16 +141,19 @@ CGFloat WFGeometryParameterForCubicCurvePoint( const CGPoint * curve, CGPoint po
 		shiftedCurve[i] = curve[i];
 		shiftedCurve[i].y -= point.y;
 	}
-	uint64_t roots = WFGeometryFindRootsOfCubicCurve(shiftedCurve, result);
+	uint64_t roots = WFGeometryFindRootsOfCubicCurve(shiftedCurve, result, true);
 	for ( int i = 0; i < roots; i++ ) {
 		CGPoint p = WFGeometryEvaluateCubicCurve(result[i], curve);
 		CGFloat distance = WFGeometryDistance2(point, p);
-		if ( distance < WFGeometryPointResolution/4 ) return result[i];
+		if ( distance < WFGeometryPointResolution*10.0 ) {
+			*outParameter = result[i];
+			return true;
+		}
 	}
-	return 0;
+	return false;
 }
 
-uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues )
+uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues, bool greedy )
 {
 	uint16_t rootCount = 0;
 	CGPoint derivative[3];
@@ -164,7 +167,12 @@ uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues 
 		return 0;
 	}
 	
-	CGRect bounds = CGRectInset( WFGeometryCubicCurveBounds(curve), 0, WFGeometryPointResolution/4);
+	CGRect bounds = WFGeometryCubicCurveBounds(curve);
+	if ( greedy ) {
+		bounds = CGRectInset( bounds, 0, -WFGeometryPointResolution/4 );
+	} else {
+		bounds = CGRectInset( bounds, 0, WFGeometryPointResolution/4 );
+	}
 	if ( signbit(bounds.origin.y) == signbit(bounds.origin.y+bounds.size.height) ) {
 		// bounds of curve does not cross y axis
 		return 0;
@@ -189,7 +197,7 @@ uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues 
 		CGFloat z = t;
 		uint64_t iterations = 0;
 		CGPoint p = WFGeometryEvaluateCubicCurve( z, curve );
-		while ( fabs(p.y) > WFGeometryPointResolution/4 && iterations < WFGeometryNewtonIterationLimit ) {
+		while ( fabs(p.y) > 0.0 && iterations < WFGeometryNewtonIterationLimit ) {
 			// TODO: we could optimize this by only operating on the y coordinates of the curve
 			CGPoint pp = WFGeometryEvaluateQuadraticCurve( z, derivative );
 			if ( pp.y == 0.0 ) break; // We're at a stationary point... can't get anywhere from here. I hope the next starting guess works out better for you.
@@ -289,10 +297,11 @@ uint64_t WFGeometryFindRootsOfQuadraticCurve( CGPoint * curve, CGFloat * outTVal
 	return rootCount;
 }
 
-CGPoint WFGeometryClosestPointToPointOnCurve( CGPoint point, const CGPoint * curve )
+CGPoint WFGeometryClosestPointToPointOnCurve( CGPoint point, const CGPoint * curve, CGFloat * outTvalue )
 {
 	CGFloat t = 0.0;
 	CGPoint bestPoint;
+	CGFloat bestT;
 	CGFloat result = CGFLOAT_MAX;
 	
 	while ( t <= 1.0 ) {
@@ -301,11 +310,39 @@ CGPoint WFGeometryClosestPointToPointOnCurve( CGPoint point, const CGPoint * cur
 		if ( d2 < result ) {
 			bestPoint = p;
 			result = d2;
+			bestT = t;
 		}
-		t += 0.005;
+		t += 0.001953125;
 	}
 	
-	// TODO: could do a binary search around a small ~linear portion of the parametric space here to improve result
+	CGFloat rangeMin = fmax(bestT - 0.001953125,0.0);
+	CGFloat rangeMax = fmin(bestT + 0.001953125,1.0);
+	CGFloat delta = (rangeMax-rangeMin)/2.0;
+	t = (rangeMax+rangeMin)/2.0;
+	
+	while ( 1 ) {
+		CGPoint pLess = WFGeometryEvaluateCubicCurve( t-delta, curve );
+		CGPoint pMore = WFGeometryEvaluateCubicCurve( t+delta, curve );
+		if ( WFGeometryDistance( pLess, pMore ) < WFGeometryPointResolution ) break;
+		
+		CGFloat dLess = WFGeometryDistance2( pLess, point );
+		CGFloat dMore = WFGeometryDistance2( pMore, point );
+		
+		if ( dLess < dMore && dLess < result ) {
+			bestT = t-delta;
+			bestPoint = pLess;
+			result = dLess;
+			t -= delta;
+		} else if ( dMore < dLess && dMore < result ) {
+			bestT = t+delta;
+			bestPoint = pMore;
+			result = dMore;
+			t += delta;
+		}
+		delta = delta / 2.0;
+	}
+	
+	*outTvalue = bestT;
 	return bestPoint;
 }
 
@@ -502,7 +539,7 @@ bool WFGeometryLineIntersectsCurve( CGPoint pt1, CGPoint pt2, const CGPoint * cu
 		
 	// find zeros of the curve
 	CGFloat curveHits[3];
-	return WFGeometryFindRootsOfCubicCurve( tempCurve, curveHits ) > 0;
+	return WFGeometryFindRootsOfCubicCurve( tempCurve, curveHits, false ) > 0;
 }
 
 uint64_t WFGeometryLineCurveIntersection( CGPoint pt1, CGPoint pt2, const CGPoint * curve, CGFloat * outT1Array, CGFloat * outT2Array )
@@ -528,9 +565,8 @@ uint64_t WFGeometryLineCurveIntersection( CGPoint pt1, CGPoint pt2, const CGPoin
 	CGFloat tempTArray[3];
 	
 	
-	
 	// find zeros of the curve
-	uint64_t tempHits = WFGeometryFindRootsOfCubicCurve( tempCurve, tempTArray );
+	uint64_t tempHits = WFGeometryFindRootsOfCubicCurve( tempCurve, tempTArray, false );
 	
 	// keep the zeros of the rotated curve that are also on the line segment
 	for ( uint64_t i = 0; i < tempHits; i++ ) {
@@ -598,7 +634,7 @@ uint64_t WFGeometryLineCurveIntersection( CGPoint pt1, CGPoint pt2, const CGPoin
 
 uint64_t WFGeometryCurveCurveIntersection( const CGPoint * curveA, const CGPoint * curveB, CGFloat * outT1Array, CGFloat * outT2Array )
 {
-	// Special case for overlapping curves results in intersections at the endpoints
+	// Special case for　completely overlapping curves results in intersections at the endpoints
 	if ( WFGeometryDistance(curveA[0], curveB[0]) < WFGeometryPointResolution &&
 		 WFGeometryDistance(curveA[1], curveB[1]) < WFGeometryPointResolution &&
 		 WFGeometryDistance(curveA[2], curveB[2]) < WFGeometryPointResolution &&
@@ -620,12 +656,64 @@ uint64_t WFGeometryCurveCurveIntersection( const CGPoint * curveA, const CGPoint
 		return 2;
 	}
 	
-	return WFGeometryCurveCurveIntersection_Recursive( curveA, curveB, outT1Array, outT2Array, 0.5, 0.5, 1, 0 );
+	bool possiblyOverlapping = false;
+	uint64_t result = WFGeometryCurveCurveIntersection_Recursive( curveA, curveB, outT1Array, outT2Array, 0.5, 0.5, 1, 0, &possiblyOverlapping );
+	
+	if ( possiblyOverlapping ) {
+		CGFloat aStartBT;
+		bool aStartBHit = WFGeometryParameterForCubicCurvePoint( curveB, curveA[0], &aStartBT );
+		CGFloat aEndBT;
+		bool aEndBHit = WFGeometryParameterForCubicCurvePoint( curveB, curveA[3], &aEndBT );
+		
+		if ( aStartBHit && !aEndBHit ) {
+			// only A start point is overlapping
+			outT1Array[0] = 0.0;
+			outT2Array[0] = aStartBT;
+		} else if ( !aStartBHit && aEndBHit ) {
+			// only A end point is overlapping
+			outT1Array[0] = 1.0;
+			outT2Array[0] = aEndBT;
+		} else if ( aStartBHit && aEndBHit ) {
+			// both ends of A overlap
+			outT1Array[0] = 0.0;
+			outT2Array[0] = aStartBT;
+			outT1Array[1] = 1.0;
+			outT2Array[1] = aEndBT;
+			return 2;
+		}
+		
+		CGFloat bStartAT;
+		bool bStartAHit = WFGeometryParameterForCubicCurvePoint( curveA, curveB[0], &bStartAT );
+		CGFloat bEndAT;
+		bool bEndAHit = WFGeometryParameterForCubicCurvePoint( curveA, curveB[3], &bEndAT );
+		if ( bStartAHit && !bEndAHit ) {
+			// only B start point is overlapping
+			outT1Array[1] = bStartAT;
+			outT2Array[1] = 0.0;
+		} else if ( !bStartAHit && bEndAHit ) {
+			// only B end point is overlapping
+			outT1Array[1] = bEndAT;
+			outT2Array[1] = 1.0;
+		} else if ( bStartAHit && bEndAHit ) {
+			// both ends of B overlap
+			outT1Array[0] = 0.0;
+			outT2Array[0] = aStartBT;
+			outT1Array[1] = 1.0;
+			outT2Array[1] = aEndBT;
+			return 2;
+		}
+		
+		if ( !(aStartBHit || aEndBHit || bStartAHit || bEndAHit) ) return result;
+		return 2;
+	}
+	
+	return result;
 }
 
-uint64_t WFGeometryCurveCurveIntersection_Recursive( const CGPoint * curveA, const CGPoint * curveB, CGFloat * outT1Array, CGFloat * outT2Array, CGFloat tA, CGFloat tB, uint64_t depth, uint64_t resultCount )
+uint64_t WFGeometryCurveCurveIntersection_Recursive( const CGPoint * curveA, const CGPoint * curveB, CGFloat * outT1Array, CGFloat * outT2Array, CGFloat tA, CGFloat tB, uint64_t depth, uint64_t resultCount, bool *outPossiblyOverlapping )
 {
-	if ( resultCount == 6 ) return 0;
+	//if ( resultCount == 6 ) return 0;
+	if ( *outPossiblyOverlapping ) return 0;
 	
 	CGRect boundsA = WFGeometryCubicCurveBounds( curveA );
 	CGRect boundsB = WFGeometryCubicCurveBounds( curveB );
@@ -638,6 +726,11 @@ uint64_t WFGeometryCurveCurveIntersection_Recursive( const CGPoint * curveA, con
 		boundsA.size.height < WFGeometryPointResolution/4 &&
 		boundsB.size.width < WFGeometryPointResolution/4 &&
 		boundsB.size.height < WFGeometryPointResolution/4 ) {
+		
+		if ( resultCount == 6 ) {
+			*outPossiblyOverlapping = true;
+			return 0;
+		}
 		
 		for ( int i = 0; i < resultCount; i++ ) {
 			if ( fabs(tA-outT1Array[i]) < WFGeometryParametricResolution ) return 0;
@@ -657,10 +750,11 @@ uint64_t WFGeometryCurveCurveIntersection_Recursive( const CGPoint * curveA, con
 	CGPoint curveBA[4];
 	CGPoint curveBB[4];
 	WFGeometrySplitCubicCurve(0.5, curveB, curveBA, curveBB);
-	result += WFGeometryCurveCurveIntersection_Recursive( curveAA, curveBA, outT1Array, outT2Array, tA-delta, tB-delta, depth+1, result+resultCount );
-	result += WFGeometryCurveCurveIntersection_Recursive( curveAB, curveBA, outT1Array, outT2Array, tA+delta, tB-delta, depth+1, result+resultCount );
-	result += WFGeometryCurveCurveIntersection_Recursive( curveAA, curveBB, outT1Array, outT2Array, tA-delta, tB+delta, depth+1, result+resultCount );
-	result += WFGeometryCurveCurveIntersection_Recursive( curveAB, curveBB, outT1Array, outT2Array, tA+delta, tB+delta, depth+1, result+resultCount );
+	
+	result += WFGeometryCurveCurveIntersection_Recursive( curveAA, curveBA, outT1Array, outT2Array, tA-delta, tB-delta, depth+1, result+resultCount, outPossiblyOverlapping );
+	result += WFGeometryCurveCurveIntersection_Recursive( curveAB, curveBA, outT1Array, outT2Array, tA+delta, tB-delta, depth+1, result+resultCount, outPossiblyOverlapping );
+	result += WFGeometryCurveCurveIntersection_Recursive( curveAA, curveBB, outT1Array, outT2Array, tA-delta, tB+delta, depth+1, result+resultCount, outPossiblyOverlapping );
+	result += WFGeometryCurveCurveIntersection_Recursive( curveAB, curveBB, outT1Array, outT2Array, tA+delta, tB+delta, depth+1, result+resultCount, outPossiblyOverlapping );
 	
 	return result;
 }
@@ -685,6 +779,7 @@ bool WFGeometryVectorsOnSameSideOfLine( CGPoint lineVector, CGPoint v1, CGPoint 
 
 bool WFGeometryVectorsCoincident( CGPoint lineVector, CGPoint v1, CGPoint v2 )
 {
+	WFGeometryNormalizeVector( &lineVector );
 	WFGeometryNormalizeVector( &v1 );
 	CGFloat z = WFGeometryDeterminant2x2( v1.x, v1.y, lineVector.x, lineVector.y );
 	if ( fabs(z) < WFGeometryAngularResolution ) return true;

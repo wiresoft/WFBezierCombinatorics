@@ -14,13 +14,13 @@
 #define WFGeometryPointResolution (1.0E-8)
 
 // Angle below which angles may be considered equal
-#define WFGeometryAngularResolution (1.0E-16)
+#define WFGeometryAngularResolution (1.0E-7)
 
 // Distance below which two parametric values may be considered coincident by some algorithms
 #define WFGeometryParametricResolution (1.0E-8)
 
 // Iteration limit for Newton-Raphson root finding
-#define WFGeometryNewtonIterationLimit 100
+#define WFGeometryNewtonIterationLimit 50
 
 
 /** Computes determinant for 2x2 matrix:
@@ -95,17 +95,19 @@ void WFGeometrySplitCubicCurve( CGFloat t, const CGPoint * curve, CGPoint * outC
 /** Determines the parametric value at which a curve intersects a given point on the curve.
  @param curve The cubic bezier curve
  @param point A point on the curve
- @return The parametric value at which curve intersects with point
+ @param outParameter The parametric value at which curve intersects with point
+ @return true if the parameter was found, false otherwise.
  */
-CGFloat WFGeometryParameterForCubicCurvePoint( const CGPoint * curve, CGPoint point );
+bool WFGeometryParameterForCubicCurvePoint( const CGPoint * curve, CGPoint point, CGFloat * outParameter );
 
 
 /** Finds roots of a cubic bezier curve (where the curve's y value = 0).
  @param curve The control points of the cubic bezier curve. Must contain 4 values.
  @param outTValues On return, contains the parametric values where the curve intersects the x axis. This must have enough space to hold 3 values.
+ @param greedy if true, will try and detect roots that might not quite touch the y axis
  @return The number of roots. There are a maximum of 3 roots for a cubic curve.
  */
-uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues );
+uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues, bool greedy );
 
 
 /** Finds roots of a quadratic bezier curve (where the curve's y value = 0).
@@ -159,7 +161,7 @@ CGPoint WFGeometryClosestPointToPointOnLine( CGPoint point, CGPoint pointA, CGPo
  @param curve The cubic bezier curve points. Must hold 4 points.
  @return Point on bezier curve that is closest to point.
  */
-CGPoint WFGeometryClosestPointToPointOnCurve( CGPoint point, const CGPoint * curve );
+CGPoint WFGeometryClosestPointToPointOnCurve( CGPoint point, const CGPoint * curve, CGFloat * outTvalue );
 
 
 /** Determines if line segment and axis-aligned-rectangle intersect.

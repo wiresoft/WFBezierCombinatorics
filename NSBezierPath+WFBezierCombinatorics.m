@@ -419,6 +419,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		*outXOR = 0.0;
 		*outAND = 0.0;
 		*outOR = 0.0;
+		*outAOnly = 0.0;
 	}
 }
 
@@ -764,7 +765,12 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				CGFloat bHits[6];
 				hitCount = WFGeometryCurveCurveIntersection( controlPtsA, controlPtsB, aHits, bHits );
 				for ( NSUInteger hit = 0; hit < hitCount; hit++ ) {
-					currentResult->intersectionPoint = WFGeometryEvaluateCubicCurve( aHits[hit], controlPtsA );
+					if ( bHits[hit]-floor(bHits[hit]) < WFGeometryParametricResolution ) {
+						// hit from path B is probably on an endpoint so will be more accurate than the hit on path A
+						currentResult->intersectionPoint = WFGeometryEvaluateCubicCurve( bHits[hit], controlPtsB );
+					} else {
+						currentResult->intersectionPoint = WFGeometryEvaluateCubicCurve( aHits[hit], controlPtsA );
+					}
 					currentResult->flags = WFBezierFlag_PathA|WFBezierFlag_PathB;
 					currentResult->elementA = elementA;
 					currentResult->elementB = elementB;
@@ -880,7 +886,7 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		BOOL crossesBoundary = NO;
 		BOOL coincidentBoundaries = NO;
 		BOOL adjacentBoundaries = NO;
-			
+		
 		if ( pathAOnEndpt ) {
 			originalA = originalVertexOverlappingNode(node, vertices, indexedPathA, YES);
 			if ( originalA ) {
@@ -1014,20 +1020,38 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 		}
 		
 		if ( originalA ) {
-			if ( crossesBoundary || adjacentBoundaries ) {
-				if ( coincidentBoundaries ) node->flags |= WFBezierFlag_ParallelIntersect;
-				node->flags |= originalA->flags & (WFBezierFlag_SubPathStartA|WFBezierFlag_SubPathEndA|WFBezierFlag_OriginalEndptA);
-				node->flags |= WFBezierFlag_Coincident;
-				node->subPathEndA = originalA->subPathEndA;
-				node->subPathOriginA = originalA->subPathOriginA;
+			if ( crossesBoundary || adjacentBoundaries || (coincidentBoundaries && !pathBOnEndpt) ) {
+				
+				WFBezierVertexNode * nodeToSave = NULL;
+				CGFloat splitT = node->pathA_t;
+				if ( WFGeometryDistance( node->intersectionPoint, node->controlPointsA[3] ) < WFGeometryPointResolution && (splitT-floor(splitT) == 0.0) ) {
+					splitT = 1.0;
+				} else {
+					splitT -= floor(splitT);
+				}
+				
+				// If the intersection is right at the start of the curve we need to find the intersection that has the control points for the beginning
+				// part of the curve instead.
+				if ( WFGeometryDistance(node->controlPointsA[0], WFGeometryEvaluateCubicCurve(splitT, node->controlPointsA)) > WFGeometryPointResolution ) {
+					// We can keep this node because it has enough information to reconstruct the curve to its endpoint.
+					nodeToSave = node;
+				}
+			
 				originalA->flags |= WFBezierFlag_ShouldInvalidate;
+				
 				nextNodeA = nodeOnIndexPathAfterNode( node, vertices, indexedPathA, YES );
 				while ( WFGeometryDistance(node->intersectionPoint, nextNodeA->intersectionPoint) <= WFGeometryPointResolution ) {
+					if ( !nodeToSave && nextNodeA->elementA == NSCurveToBezierPathElement && WFGeometryDistance( nextNodeA->controlPointsA[3], node->controlPointsA[0]) < WFGeometryPointResolution ) {
+						nodeToSave = nextNodeA;
+					}
 					nextNodeA->flags |= WFBezierFlag_ShouldInvalidate;
 					nextNodeA = nodeOnIndexPathAfterNode( nextNodeA, vertices, indexedPathA, YES );
 				}
 				nextNodeA = nodeOnIndexPathBeforeNode( node, vertices, indexedPathA, YES );
 				while ( WFGeometryDistance(node->intersectionPoint, nextNodeA->intersectionPoint) <= WFGeometryPointResolution ) {
+					if ( !nodeToSave && nextNodeA->elementA == NSCurveToBezierPathElement && WFGeometryDistance( nextNodeA->controlPointsA[3], node->controlPointsA[0]) < WFGeometryPointResolution ) {
+						nodeToSave = nextNodeA;
+					}
 					nextNodeA->flags |= WFBezierFlag_ShouldInvalidate;
 					nextNodeA = nodeOnIndexPathBeforeNode( nextNodeA, vertices, indexedPathA, YES );
 				}
@@ -1035,26 +1059,52 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				if ( nextNodeA ) {
 					nextNodeA->flags |= WFBezierFlag_ShouldInvalidate;
 				}
+				
+				if ( nodeToSave && nodeToSave != node ) memcpy(node->controlPointsA, nodeToSave->controlPointsA, sizeof(CGPoint)*4);
+				if ( coincidentBoundaries ) node->flags |= WFBezierFlag_ParallelIntersect;
+				node->flags |= originalA->flags & (WFBezierFlag_SubPathStartA|WFBezierFlag_SubPathEndA|WFBezierFlag_OriginalEndptA);
+				node->flags |= WFBezierFlag_Coincident|WFBezierFlag_PathA|WFBezierFlag_PathB;
+				node->subPathEndA = originalA->subPathEndA;
+				node->subPathOriginA = originalA->subPathOriginA;
+				
 			} else {
 				node->flags |= WFBezierFlag_ShouldInvalidate;
 				originalA->flags |= WFBezierFlag_Coincident;
 			}
 		}
 		if ( originalB ) {
-			if ( crossesBoundary || adjacentBoundaries ) {
-				if ( coincidentBoundaries ) node->flags |= WFBezierFlag_ParallelIntersect;
-				node->flags |= originalB->flags & (WFBezierFlag_SubPathStartB|WFBezierFlag_SubPathEndB|WFBezierFlag_OriginalEndptB);
-				node->flags |= WFBezierFlag_Coincident;
-				node->subPathEndB = originalB->subPathEndB;
-				node->subPathOriginB = originalB->subPathOriginB;
+			if ( crossesBoundary || adjacentBoundaries || (coincidentBoundaries && !pathAOnEndpt) ) {
+				
+				WFBezierVertexNode * nodeToSave = NULL;
+				CGFloat splitT = node->pathB_t;
+				if ( WFGeometryDistance( node->intersectionPoint, node->controlPointsB[3] ) < WFGeometryPointResolution && (splitT-floor(splitT) == 0.0) ) {
+					splitT = 1.0;
+				} else {
+					splitT -= floor(splitT);
+				}
+				
+				// If the intersection is right at the start of the curve we need to find the intersection that has the control points for the beginning
+				// part of the curve instead.
+				if ( WFGeometryDistance(node->controlPointsB[0], WFGeometryEvaluateCubicCurve(splitT, node->controlPointsB)) > WFGeometryPointResolution ) {
+					// We can keep this node because it has enough information to reconstruct the curve to its endpoint.
+					nodeToSave = node;
+				}
+				
 				originalB->flags |= WFBezierFlag_ShouldInvalidate;
+				
 				nextNodeB = nodeOnIndexPathAfterNode( node, vertices, indexedPathB, NO );
 				while ( WFGeometryDistance(node->intersectionPoint, nextNodeB->intersectionPoint) <= WFGeometryPointResolution ) {
+					if ( !nodeToSave && nextNodeB->elementB == NSCurveToBezierPathElement && WFGeometryDistance( nextNodeB->controlPointsB[3], node->controlPointsB[0]) < WFGeometryPointResolution ) {
+						nodeToSave = nextNodeB;
+					}
 					nextNodeB->flags |= WFBezierFlag_ShouldInvalidate;
 					nextNodeB = nodeOnIndexPathAfterNode( nextNodeB, vertices, indexedPathB, NO );
 				}
 				nextNodeB = nodeOnIndexPathBeforeNode( node, vertices, indexedPathB, NO );
 				while ( WFGeometryDistance(node->intersectionPoint, nextNodeB->intersectionPoint) <= WFGeometryPointResolution ) {
+					if ( !nodeToSave && nextNodeB->elementB == NSCurveToBezierPathElement && WFGeometryDistance( nextNodeB->controlPointsB[3], node->controlPointsB[0]) < WFGeometryPointResolution ) {
+						nodeToSave = nextNodeB;
+					}
 					nextNodeB->flags |= WFBezierFlag_ShouldInvalidate;
 					nextNodeB = nodeOnIndexPathBeforeNode( nextNodeB, vertices, indexedPathB, NO );
 				}
@@ -1062,6 +1112,14 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				if ( nextNodeB ) {
 					nextNodeB->flags |= WFBezierFlag_ShouldInvalidate;
 				}
+				
+				if ( nodeToSave && nodeToSave != node ) memcpy(node->controlPointsB, nodeToSave->controlPointsB, sizeof(CGPoint)*4);
+				if ( coincidentBoundaries ) node->flags |= WFBezierFlag_ParallelIntersect;
+				node->flags |= originalB->flags & (WFBezierFlag_SubPathStartB|WFBezierFlag_SubPathEndB|WFBezierFlag_OriginalEndptB);
+				node->flags |= WFBezierFlag_Coincident|WFBezierFlag_PathA|WFBezierFlag_PathB;
+				node->subPathEndB = originalB->subPathEndB;
+				node->subPathOriginB = originalB->subPathOriginB;
+
 			} else {
 				node->flags |= WFBezierFlag_ShouldInvalidate;
 				originalB->flags |= WFBezierFlag_Coincident;
@@ -1197,36 +1255,40 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 							CGPoint curveSplitNext[4];
 							CGPoint curveSplitFinal[4];
 							CGFloat splitT;
-							CGFloat previousSplitT;
 							WFBezierVertexNode * previousNode;
 							if ( isPathA ) {
 								previousNode = nodeOnIndexPathBeforeNode(node, vertices, indexedPathA, isPathA);
 								splitT = node->pathA_t;
-								previousSplitT = previousNode->pathA_t;
 							} else {
 								previousNode = nodeOnIndexPathBeforeNode(node, vertices, indexedPathB, isPathA);
 								splitT = node->pathB_t;
-								previousSplitT = previousNode->pathB_t;
 							}
-							if ( WFGeometryDistance(previousNode->intersectionPoint, WFGeometryEvaluateCubicCurve( splitT-floor(splitT), originalCurve)) > WFGeometryPointResolution ) {
-								splitT -= floor(splitT);
+														
+							if ( WFGeometryDistance( node->intersectionPoint, originalCurve[3] ) < WFGeometryPointResolution && (splitT-floor(splitT) == 0.0) ) {
+								splitT = 1.0;
 							} else {
-								splitT -= floor(previousSplitT);
+								splitT -= floor(splitT);
 							}
+							
 							if ( splitT < WFGeometryParametricResolution &&
 								 WFGeometryDistance(originalCurve[0], WFGeometryEvaluateCubicCurve(splitT, originalCurve)) < WFGeometryPointResolution ) {
 								// Special case for point at the very beginning of the curve which would result in a flattened curve segment trying to approximate a straight line. In this case it is more correct to add a lineTo element.
 								[result lineToPoint:originalCurve[0]];
 							} else {
 								WFGeometrySplitCubicCurve(splitT, originalCurve, curveSplitPrevious, curveSplitNext);
-								if ( (previousNode->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) ) {
+								if ( !WFNodeIsOnBothPaths(previousNode) ) {
 									// previous node is an endpoint, so we can use the split directly
 									[result curveToPoint:curveSplitPrevious[3] controlPoint1:curveSplitPrevious[1] controlPoint2:curveSplitPrevious[2]];
 								} else {
-									// previous node is also an intersection so we have to split the curve again
-									splitT = WFGeometryParameterForCubicCurvePoint(curveSplitPrevious, previousNode->intersectionPoint);
-									WFGeometrySplitCubicCurve(splitT, curveSplitPrevious, curveSplitNext, curveSplitFinal);
-									[result curveToPoint:curveSplitFinal[3] controlPoint1:curveSplitFinal[1] controlPoint2:curveSplitFinal[2]];
+									if ( WFGeometryParameterForCubicCurvePoint( curveSplitPrevious, previousNode->intersectionPoint, &splitT ) ) {
+										// Previous node is also an intersection so we have to split the curve again at the previous intersection
+										WFGeometrySplitCubicCurve(splitT, curveSplitPrevious, curveSplitNext, curveSplitFinal);
+										[result curveToPoint:curveSplitFinal[3] controlPoint1:curveSplitFinal[1] controlPoint2:curveSplitFinal[2]];
+									} else {
+										// Previous node is an intersection but not on the same curve so we don't have to split again.
+										// This can happen if several parallel intersections chain together.
+										[result curveToPoint:curveSplitPrevious[3] controlPoint1:curveSplitPrevious[1] controlPoint2:curveSplitPrevious[2]];
+									}
 								}
 							}
 							

@@ -3334,6 +3334,67 @@
 	XCTAssertTrue([result elementCount] < 2, @"Too many elements for an empty path");
 }
 
+- (void)testBezierOverlappingAngleOffsetSpheres
+{
+	NSBezierPathElement element;
+	CGPoint points[3];
+	NSBezierPath * a;
+	NSBezierPath * b;
+	NSBezierPath * result;
+	
+	a = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(-50.0, -50.0, 100.0, 100.0)];
+	NSAffineTransform * t = [[NSAffineTransform alloc] init];
+	
+	[t rotateByDegrees:45.0];
+	b = [t transformBezierPath:a];
+	
+	result = [a WFUnionWithPath:b];
+	XCTAssertTrue( [result elementCount] == 9, @"Incorrect element count" );
+	element = [result elementAtIndex:0 associatedPoints:points];
+	XCTAssertTrue( element == NSMoveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(35.355339, 35.355339)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:1 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(25.592232, 45.118446)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(12.796117, 49.999999)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(0.000002, 50.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:2 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(-12.796115, 50.000001)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(-25.592231, 45.118447)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(-35.355339, 35.355339)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:3 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(-45.118446, 25.592232)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(-50.000000, 12.796116)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(-50.000000, 0.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:4 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(-50.000000, -12.796116)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(-45.118446, -25.592232)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(-35.355339, -35.355339)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:5 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(-25.592232, -45.118446)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(-12.796116, -50.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(-0.000000, -50.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:6 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(12.796116, -50.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(25.592232, -45.118446)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(35.355339, -35.355339)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:7 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(45.118446, -25.592232)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(50.000000, -12.796116)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(50.000000, 0.000000)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	element = [result elementAtIndex:8 associatedPoints:points];
+	XCTAssertTrue( element == NSCurveToBezierPathElement, @"Incorrect element" );
+	XCTAssertTrue( WFGeometryDistance(points[0], CGPointMake(50.000000, 12.796116)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[1], CGPointMake(45.118446, 25.592232)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+	XCTAssertTrue( WFGeometryDistance(points[2], CGPointMake(35.355339, 35.355339)) <= WFBezierPointAcceptanceResolution, @"Incorrect result point" );
+}
+
 - (void)testBezierIntersectingSpheres
 {
 	NSBezierPathElement element;
@@ -4289,7 +4350,7 @@
 	curve[2] = CGPointMake(220, -320);
 	curve[3] = CGPointMake(220,  160);
 	
-	uint64_t count = WFGeometryFindRootsOfCubicCurve( curve, result );
+	uint64_t count = WFGeometryFindRootsOfCubicCurve( curve, result, false );
 	XCTAssert( count == 3, @"Not enough roots found" );
 	XCTAssertEqualWithAccuracy( result[0], 0.1726731646460114, WFGeometryParametricResolution, @"Did not find correct root");
 	XCTAssertEqualWithAccuracy( result[1], 0.8273268353539885, WFGeometryParametricResolution, @"Did not find correct root");
