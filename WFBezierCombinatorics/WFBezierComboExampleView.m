@@ -116,7 +116,7 @@
 	NSBezierPath * result;
 	switch ( [self opTag]) {
 		case 0:
-			result = [[self pathA] WFUnionWithPath:[self pathB]];
+			//result = [[self pathA] WFUnionWithPath:[self pathB]];
 			break;
 		case 1:
 			result = [[self pathA] WFSubtractPath:[self pathB]];

@@ -893,14 +893,17 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				CGPoint derivative[3];
 				nextNodeA = nextNonRedundantNode( node, vertices, indexedPathA, YES );
 				previousNodeA = previousNonRedundantNode( node, vertices, indexedPathA, YES );
-				nextNodeA = intersectionOverlappingNodeIfExists( nextNodeA, vertices, indexedPathA, YES );
-				previousNodeA = intersectionOverlappingNodeIfExists( previousNodeA, vertices, indexedPathA, YES );
+				
+				WFBezierVertexNode * originalNextA = originalVertexOverlappingNode(nextNodeA, vertices, indexedPathA, YES);
+				nextNodeA = (originalNextA)?originalNextA:nextNodeA;
+				WFBezierVertexNode * originalPrevA = originalVertexOverlappingNode(previousNodeA, vertices, indexedPathA, YES);
+				previousNodeA = (originalPrevA)?originalPrevA:previousNodeA;
 				
 				switch ( originalA->elementA ) {
 					case NSLineToBezierPathElement:
 					case NSMoveToBezierPathElement:
 					case NSClosePathBezierPathElement:
-						if ( (previousNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) && floor(previousNodeA->pathA_t) == floor(originalA->pathA_t) ) {
+						if ( !WFNodeIsOnBothPaths(previousNodeA) && floor(previousNodeA->pathA_t) == floor(originalA->pathA_t) ) {
 							crossesBoundary = YES;
 						} else {
 							testVec1A = CGPointMake( previousNodeA->intersectionPoint.x-node->intersectionPoint.x, previousNodeA->intersectionPoint.y-node->intersectionPoint.y );
@@ -909,13 +912,15 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 					case NSCurveToBezierPathElement:
 						WFGeometryBezierDerivative( originalA->controlPointsA, derivative );
 						testVec1A = WFGeometryEvaluateQuadraticCurve( 1.0, derivative );
+						testVec1A.x *= -1.0;
+						testVec1A.y *= -1.0;
 						break;
 				}
 				switch ( nextNodeA->elementA ) {
 					case NSLineToBezierPathElement:
 					case NSMoveToBezierPathElement:
 					case NSClosePathBezierPathElement:
-						if ( (nextNodeA->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) && floor(nextNodeA->pathA_t) == floor(originalA->pathA_t) ) {
+						if ( !WFNodeIsOnBothPaths(nextNodeA) && floor(nextNodeA->pathA_t) == floor(originalA->pathA_t) ) {
 							crossesBoundary = YES;
 						} else {
 							testVec2A = CGPointMake( nextNodeA->intersectionPoint.x-node->intersectionPoint.x, nextNodeA->intersectionPoint.y-node->intersectionPoint.y );
@@ -951,14 +956,17 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 				CGPoint derivative[3];
 				nextNodeB = nextNonRedundantNode( node, vertices, indexedPathB, NO );
 				previousNodeB = previousNonRedundantNode( node, vertices, indexedPathB, NO );
-				nextNodeB = intersectionOverlappingNodeIfExists( nextNodeB, vertices, indexedPathB, NO );
-				previousNodeB = intersectionOverlappingNodeIfExists( previousNodeB, vertices, indexedPathB, NO );
+				
+				WFBezierVertexNode * originalNextB = originalVertexOverlappingNode(nextNodeB, vertices, indexedPathB, NO);
+				nextNodeB = (originalNextB)?originalNextB:nextNodeB;
+				WFBezierVertexNode * originalPrevB = originalVertexOverlappingNode(previousNodeB, vertices, indexedPathB, NO);
+				previousNodeB = (originalPrevB)?originalPrevB:previousNodeB;
 				
 				switch ( originalB->elementB ) {
 					case NSLineToBezierPathElement:
 					case NSMoveToBezierPathElement:
 					case NSClosePathBezierPathElement:
-						if ( (previousNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) && floor(previousNodeB->pathB_t) == floor(originalB->pathB_t) ) {
+						if ( !WFNodeIsOnBothPaths(previousNodeB) && floor(previousNodeB->pathB_t) == floor(originalB->pathB_t) ) {
 							crossesBoundary = YES;
 						} else {
 							testVec1B = CGPointMake( previousNodeB->intersectionPoint.x-node->intersectionPoint.x, previousNodeB->intersectionPoint.y-node->intersectionPoint.y );
@@ -967,13 +975,15 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 					case NSCurveToBezierPathElement:
 						WFGeometryBezierDerivative( originalB->controlPointsB, derivative );
 						testVec1B = WFGeometryEvaluateQuadraticCurve( 1.0, derivative );
+						testVec1B.x *= -1.0;
+						testVec1B.y *= -1.0;
 						break;
 				}
 				switch ( nextNodeB->elementB ) {
 					case NSLineToBezierPathElement:
 					case NSMoveToBezierPathElement:
 					case NSClosePathBezierPathElement:
-						if ( (nextNodeB->flags & (WFBezierFlag_PathA|WFBezierFlag_PathB)) != (WFBezierFlag_PathA|WFBezierFlag_PathB) && floor(nextNodeB->pathB_t) == floor(originalB->pathB_t) ) {
+						if ( !WFNodeIsOnBothPaths(nextNodeB) && floor(nextNodeB->pathB_t) == floor(originalB->pathB_t) ) {
 							crossesBoundary = YES;
 						} else {
 							testVec2B = CGPointMake( nextNodeB->intersectionPoint.x-node->intersectionPoint.x, nextNodeB->intersectionPoint.y-node->intersectionPoint.y );
@@ -1954,6 +1964,126 @@ void sortIndexPaths(WFBezierVertexNode * vertices, NSUInteger vertexCount, WFBez
 						   parallelIntersectRule:parallelIntersectRules];
 	
 	return result;
+}
+
+- (NSBezierPath *)WFInsetPath:(CGFloat)delta
+{
+	NSBezierPath * result = [self copy];
+	CGPoint controlPts[4];
+	if ( fabs(delta) < WFGeometryPointResolution ) return result;
+	
+	for ( NSUInteger j = 0; j<[self elementCount]; j++) {
+		NSBezierPathElement element = [self elementAtIndex:j associatedPoints:&controlPts[1]];
+		if ( element == NSMoveToBezierPathElement ) {
+			controlPts[0] = controlPts[1];
+			continue;
+		}
+		
+		NSBezierPath * insetPath = nil;
+		if ( element == NSCurveToBezierPathElement ) {
+			insetPath = [NSBezierPath WFInsetPathForCurvePoints:controlPts insetSize:fabs(delta)];
+		} else {
+			insetPath = [NSBezierPath WFInsetPathFromLinePtA:controlPts[0] toB:controlPts[1] insetSize:fabs(delta)];
+		}
+		if ( delta < 0 ) {
+			result = [result WFUnionWithPath:insetPath];
+		} else {
+			result = [result WFSubtractPath:insetPath];
+		}
+		if ( element == NSCurveToBezierPathElement ) {
+			controlPts[0] = controlPts[3];
+		} else {
+			controlPts[0] = controlPts[1];
+		}
+	}
+	
+	return result;
+}
+
++ (NSBezierPath *)WFInsetPathFromLinePtA:(CGPoint)point1 toB:(CGPoint)point2 insetSize:(CGFloat)thickness
+{
+	const CGFloat kControlPointFactor = (4.0*sqrt(2.0)-4.0)/3.0;
+	
+	CGPoint position;
+	CGPoint lengthVector;
+	CGPoint widthVector;
+	CGFloat length;
+	CGPoint controlPointA;
+	CGPoint controlPointB;
+	
+	// determine line size metrics
+	position = CGPointZero;
+	lengthVector = CGPointMake( point2.x-point1.x, point2.y-point1.y );
+	length = sqrt( lengthVector.x*lengthVector.x + lengthVector.y*lengthVector.y );
+	
+	widthVector.x = lengthVector.y;
+	widthVector.y = -lengthVector.x;
+	widthVector.x *= thickness/length;
+	widthVector.y *= thickness/length;
+	position.x = point1.x + widthVector.x;
+	position.y = point1.y + widthVector.y;
+	
+	// special case for line shorter than thickness
+	if ( length <= WFGeometryPointResolution ) {
+		return [NSBezierPath bezierPathWithOvalInRect:CGRectMake(position.x-thickness, position.y-thickness, thickness*2.0, thickness*2.0)];
+	}
+	
+	// construct the path
+	NSBezierPath * result = [[NSBezierPath alloc] init];
+	[result moveToPoint:position];
+	position.x += lengthVector.x;
+	position.y += lengthVector.y;
+	[result lineToPoint:position];
+	
+	controlPointA = position;
+	controlPointA.x += -widthVector.y*kControlPointFactor;
+	controlPointA.y += widthVector.x*kControlPointFactor;
+	position.x = position.x - widthVector.x + lengthVector.x*thickness/length;
+	position.y = position.y - widthVector.y + lengthVector.y*thickness/length;
+	controlPointB = position;
+	controlPointB.x += widthVector.x*kControlPointFactor;
+	controlPointB.y += widthVector.y*kControlPointFactor;
+	[result curveToPoint:position controlPoint1:controlPointA controlPoint2:controlPointB];
+	
+	controlPointA = position;
+	controlPointA.x += -widthVector.x*kControlPointFactor;
+	controlPointA.y += -widthVector.y*kControlPointFactor;
+	position.x = position.x - widthVector.x - lengthVector.x*thickness/length;
+	position.y = position.y - widthVector.y - lengthVector.y*thickness/length;
+	controlPointB = position;
+	controlPointB.x += -widthVector.y*kControlPointFactor;
+	controlPointB.y += widthVector.x*kControlPointFactor;
+	[result curveToPoint:position controlPoint1:controlPointA controlPoint2:controlPointB];
+	
+	position.x -= lengthVector.x;
+	position.y -= lengthVector.y;
+	[result lineToPoint:position];
+	
+	controlPointA = position;
+	controlPointA.x += widthVector.y*kControlPointFactor;
+	controlPointA.y += -widthVector.x*kControlPointFactor;
+	position.x = position.x + widthVector.x - lengthVector.x*thickness/length;
+	position.y = position.y + widthVector.y - lengthVector.y*thickness/length;
+	controlPointB = position;
+	controlPointB.x += -widthVector.x*kControlPointFactor;
+	controlPointB.y += -widthVector.y*kControlPointFactor;
+	[result curveToPoint:position controlPoint1:controlPointA controlPoint2:controlPointB];
+	
+	controlPointA = position;
+	controlPointA.x += widthVector.x*kControlPointFactor;
+	controlPointA.y += widthVector.y*kControlPointFactor;
+	position.x = position.x + widthVector.x + lengthVector.x*thickness/length;
+	position.y = position.y + widthVector.y + lengthVector.y*thickness/length;
+	controlPointB = position;
+	controlPointB.x += widthVector.y*kControlPointFactor;
+	controlPointB.y += -widthVector.x*kControlPointFactor;
+	[result curveToPoint:position controlPoint1:controlPointA controlPoint2:controlPointB];
+	return result;
+}
+
++ (NSBezierPath *)WFInsetPathForCurvePoints:(CGPoint *)curve insetSize:(CGFloat)thickness
+{
+	return nil;
 }
 
 - (NSString *)WFTestCaseDump

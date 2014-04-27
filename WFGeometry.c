@@ -218,7 +218,7 @@ uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues,
 	}
 	
 	if ( initialSolution ) {
-		CGFloat a,b,c,d;
+		CGFloat a,b,c;
 		
 		// check if initial solution is a valid parameter on the bezier curve
 		if ( t >= 0.0 && t <= 1.0 ) {
@@ -231,7 +231,6 @@ uint64_t WFGeometryFindRootsOfCubicCurve( CGPoint * curve, CGFloat * outTValues,
 		a = curve[3].y - 3.0*curve[2].y + 3.0*curve[1].y - curve[0].y;
 		b = 3.0*curve[2].y - 6.0*curve[1].y + 3.0*curve[0].y;
 		c = 3.0*curve[1].y - 3.0*curve[0].y;
-		d = curve[0].y;
 		b += t*a;
 		c += t*b;
 		
@@ -301,7 +300,7 @@ CGPoint WFGeometryClosestPointToPointOnCurve( CGPoint point, const CGPoint * cur
 {
 	CGFloat t = 0.0;
 	CGPoint bestPoint;
-	CGFloat bestT;
+	CGFloat bestT = 0.0;
 	CGFloat result = CGFLOAT_MAX;
 	
 	while ( t <= 1.0 ) {
