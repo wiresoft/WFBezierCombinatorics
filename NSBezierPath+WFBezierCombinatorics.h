@@ -27,9 +27,4 @@
  */
 - (NSBezierPath *)WFSubtractPath:(NSBezierPath *)path;
 
-/** Returns a new NSBezierPath with all edges inset by a specified amount.
- @param delta The amount to inset each path edge.
- */
-- (NSBezierPath *)WFInsetPath:(CGFloat)delta;
-
 @end
